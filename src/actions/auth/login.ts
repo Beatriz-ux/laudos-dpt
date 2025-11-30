@@ -1,59 +1,74 @@
 "use server"
 
-import bcrypt from "bcrypt"
+import { prisma } from "@/lib/prisma"
+import { createSession } from "@/modules/auth"
+import type { LoginCredentials, ActionResponse, User } from "@/types"
+import bcrypt from "bcryptjs"
 
-import db from "@/modules/db"
+export async function login(credentials: LoginCredentials): Promise<ActionResponse<User>> {
+  try {
+    const { username, password, newPassword } = credentials
 
-import { isEmail } from "@/utils/Validators"
-import { authenticateLogin } from "@/modules/auth"
+    const profile = await prisma.profile.findUnique({
+      where: { username },
+      include: { roles: true },
+    })
 
-export async function loginAction(formData: FormData) {
-	const user = {
-		email: formData.get("email") as string,
-		password: formData.get("password") as string,
-	}
+    if (!profile) {
+      return { success: false, error: "Credenciais inválidas" }
+    }
 
-	if (!user.email || !user.password) {
-		return {
-			error: "Please fill in all fields",
-		}
-	}
+    if (!profile.isActive) {
+      return { success: false, error: "Usuário inativo. Contate o administrador." }
+    }
 
-	if (!isEmail(user.email)) {
-		return {
-			error: "Please enter a valid email",
-		}
-	}
+    const isPasswordValid = await bcrypt.compare(password, profile.password)
+    if (!isPasswordValid) {
+      return { success: false, error: "Credenciais inválidas" }
+    }
 
-	try {
-		const existingUser = await db.user.findFirst({
-			where: {
-				email: user.email,
-			},
-		})
+    if (profile.mustChangePassword && !newPassword) {
+      return { success: false, error: "MUST_CHANGE_PASSWORD" }
+    }
 
-		if (!existingUser) {
-			return {
-				error: "User does not exist",
-			}
-		}
+    if (newPassword) {
+      const hashedPassword = await bcrypt.hash(newPassword, 10)
+      await prisma.profile.update({
+        where: { id: profile.id },
+        data: { password: hashedPassword, mustChangePassword: false },
+      })
+    }
 
-		const isPasswordCorrect = await bcrypt.compare(user.password, existingUser.password)
+    await prisma.profile.update({
+      where: { id: profile.id },
+      data: { lastLogin: new Date() },
+    })
 
-		if (!isPasswordCorrect) {
-			return {
-				error: "Password is incorrect",
-			}
-		}
+    const userRole = profile.roles[0]?.role
+    if (!userRole) {
+      return { success: false, error: "Usuário sem papel definido" }
+    }
 
-		await authenticateLogin(existingUser)
+    const user: User = {
+      id: profile.id,
+      username: profile.username,
+      email: profile.email,
+      name: profile.name,
+      department: profile.department,
+      badge: profile.badge,
+      role: userRole,
+      isActive: profile.isActive,
+      mustChangePassword: newPassword ? false : profile.mustChangePassword,
+      lastLogin: new Date(),
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    }
 
-		return {
-			user: existingUser,
-		}
-	} catch (e) {
-		return {
-			error: "Something went wrong. Please try again later.",
-		}
-	}
+    await createSession(user)
+
+    return { success: true, data: user }
+  } catch (error: any) {
+    console.error("Login error:", error)
+    return { success: false, error: "Erro ao fazer login. Tente novamente." }
+  }
 }

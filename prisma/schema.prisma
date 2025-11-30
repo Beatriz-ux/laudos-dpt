@@ -1,21 +1,151 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Schema completo do Sistema de Laudos Policiais
+// Baseado na documentação do laudo-backend
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("POSTGRES_PRISMA_URL")
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
 }
 
-model User {
-    id       String @id @default(cuid())
-    name     String
-    email    String @unique
-    password String
+// ============================================
+// ENUMS
+// ============================================
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+enum AppRole {
+  AGENT
+  OFFICER
+}
+
+enum Department {
+  TRAFFIC
+  CRIMINAL
+  ADMINISTRATIVE
+}
+
+enum ReportStatus {
+  PENDING       // Aguardando atribuição
+  RECEIVED      // Atribuído a um policial
+  IN_PROGRESS   // Policial iniciou trabalho
+  COMPLETED     // Laudo finalizado
+  CANCELLED     // Laudo cancelado
+}
+
+enum Priority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ============================================
+// MODELS
+// ============================================
+
+model Profile {
+  id                   String    @id @default(cuid())
+  username             String    @unique
+  email                String    @unique
+  password             String    // Senha criptografada
+  name                 String
+  department           Department
+  badge                String    @unique // Matrícula/Placa
+  isActive             Boolean   @default(true) @map("is_active")
+  mustChangePassword   Boolean   @default(true) @map("must_change_password")
+  lastLogin            DateTime? @map("last_login")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  roles                UserRole[]
+  createdReports       Report[]          @relation("ReportCreator")
+  assignedReports      Report[]          @relation("ReportAssignee")
+  auditLogs            ReportAuditLog[]
+
+  @@map("profiles")
+}
+
+model UserRole {
+  id     String  @id @default(cuid())
+  userId String  @map("user_id")
+  role   AppRole
+
+  // Relacionamentos
+  user Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@map("user_roles")
+}
+
+model Report {
+  id                        String        @id @default(cuid())
+  number                    String        @unique // Formato: YYYYMMDD-DEPT-0001
+  status                    ReportStatus  @default(PENDING)
+  priority                  Priority
+  createdBy                 String        @map("created_by")
+  assignedTo                String?       @map("assigned_to")
+  assignedAt                DateTime?     @map("assigned_at")
+
+  // Localização
+  locationAddress           String?       @map("location_address")
+  locationCity              String?       @map("location_city")
+  locationState             String?       @map("location_state")
+  locationCoordinates       String?       @map("location_coordinates") // JSON string
+
+  // Dados do veículo
+  vehiclePlate              String?       @map("vehicle_plate")
+  vehicleChassi             String?       @map("vehicle_chassi")
+  vehicleMotor              String?       @map("vehicle_motor")
+  vehicleColor              String?       @map("vehicle_color")
+  vehicleBrand              String?       @map("vehicle_brand")
+  vehicleModel              String?       @map("vehicle_model")
+  vehicleYear               Int?          @map("vehicle_year")
+  vehicleIsCloned           Boolean?      @default(false) @map("vehicle_is_cloned")
+
+  // Análise
+  analysisIsConclusive      Boolean?      @map("analysis_is_conclusive")
+  analysisJustification     String?       @map("analysis_justification") @db.Text
+  analysisObservations      String?       @map("analysis_observations") @db.Text
+
+  // Metadados
+  createdAt                 DateTime      @default(now()) @map("created_at")
+  updatedAt                 DateTime      @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  creator    Profile            @relation("ReportCreator", fields: [createdBy], references: [id])
+  assignee   Profile?           @relation("ReportAssignee", fields: [assignedTo], references: [id])
+  auditLogs  ReportAuditLog[]
+  photos     VehiclePhoto[]
+
+  @@map("reports")
+}
+
+model ReportAuditLog {
+  id        String   @id @default(cuid())
+  reportId  String   @map("report_id")
+  action    String   // CREATED, UPDATED, ASSIGNED, CANCELLED
+  userId    String   @map("user_id")
+  userName  String   @map("user_name") // Desnormalizado propositalmente
+  details   String?  @db.Text
+  timestamp DateTime @default(now())
+
+  // Relacionamentos
+  report Report  @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   Profile @relation(fields: [userId], references: [id])
+
+  @@map("report_audit_log")
+}
+
+model VehiclePhoto {
+  id        String   @id @default(cuid())
+  reportId  String   @map("report_id")
+  part      String   // Placa, Chassi, Motor, etc.
+  photoUrl  String   @map("photo_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relacionamentos
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@map("vehicle_photos")
 }

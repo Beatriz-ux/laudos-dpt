@@ -2,9 +2,277 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-	color: #fff;
-	background: linear-gradient(to bottom, #1b1b1b, #191919);
+/* Police Reports System - Dark Operational Dashboard Design System */
+
+@layer base {
+  :root {
+    /* Dark operational theme - Police dashboard aesthetic */
+    --background: 218 23% 7%;
+    --foreground: 210 40% 98%;
+
+    /* Cards with subtle borders */
+    --card: 218 20% 10%;
+    --card-foreground: 210 40% 98%;
+
+    /* Popover/dropdown dark styling */
+    --popover: 218 18% 12%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary - Blue for actions */
+    --primary: 224 92% 33%;
+    --primary-foreground: 218 32% 93%;
+
+    /* Secondary - Subtle gray */
+    --secondary: 217 15% 15%;
+    --secondary-foreground: 210 40% 90%;
+
+    /* Muted elements */
+    --muted: 217 15% 12%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Accent - Purple highlight */
+    --accent: 270 50% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    /* Destructive - Red for warnings/deletions */
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 210 40% 98%;
+
+    /* Borders and inputs */
+    --border: 217 15% 20%;
+    --input: 217 15% 15%;
+    --ring: 178 78% 55%;
+
+    /* Success state */
+    --success: 142 72% 45%;
+    --success-foreground: 210 40% 98%;
+
+    /* Warning state */
+    --warning: 43 96% 56%;
+    --warning-foreground: 218 23% 7%;
+
+    /* Info state */
+    --info: 212 92% 70%;
+    --info-foreground: 218 23% 7%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Police control room aesthetic */
+    --sidebar-background: 218 25% 5%;
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-primary: 178 78% 55%;
+    --sidebar-primary-foreground: 218 23% 7%;
+    --sidebar-accent: 217 15% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 15% 15%;
+    --sidebar-ring: 178 78% 55%;
+
+    /* Police badge colors */
+    --badge-pending: 43 96% 56%;
+    --badge-received: 212 92% 70%;
+    --badge-progress: 270 50% 60%;
+    --badge-completed: 142 72% 45%;
+    --badge-cancelled: 0 72% 58%;
+
+    /* Priority colors */
+    --priority-high: 0 72% 58%;
+    --priority-medium: 43 96% 56%;
+    --priority-low: 142 72% 45%;
+
+    /* Chart colors for dashboards */
+    --chart-primary: 178 78% 55%;
+    --chart-secondary: 270 50% 60%;
+    --chart-tertiary: 43 96% 56%;
+    --chart-quaternary: 142 72% 45%;
+    --chart-background: 218 20% 10%;
+    --chart-grid: 217 15% 20%;
+  }
+
+  /* Force dark theme - no light mode for police system */
+  .light {
+    --background: 218 23% 7%;
+    --foreground: 210 40% 98%;
+    --card: 218 20% 10%;
+    --card-foreground: 210 40% 98%;
+    --popover: 218 18% 12%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 178 78% 55%;
+    --primary-foreground: 218 23% 7%;
+    --secondary: 217 15% 15%;
+    --secondary-foreground: 210 40% 90%;
+    --muted: 217 15% 12%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 270 50% 60%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 15% 20%;
+    --input: 217 15% 15%;
+    --ring: 178 78% 55%;
+    --sidebar-background: 218 25% 5%;
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-primary: 178 78% 55%;
+    --sidebar-primary-foreground: 218 23% 7%;
+    --sidebar-accent: 217 15% 12%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 15% 15%;
+    --sidebar-ring: 178 78% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom scrollbar for police theme */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-md;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* Selection colors */
+  ::selection {
+    @apply bg-primary/20 text-primary-foreground;
+  }
+
+  /* Focus outline for accessibility */
+  :focus-visible {
+    @apply outline-2 outline-ring outline-offset-2;
+  }
+}
+
+@layer components {
+  /* Operational dashboard glass effect */
+  .glass-card {
+    @apply bg-card/60 backdrop-blur-sm border border-border/50;
+  }
+
+  /* Police badge animation */
+  .badge-pulse {
+    animation: badge-pulse 2s infinite;
+  }
+
+  @keyframes badge-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  /* Status indicator dots */
+  .status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  .status-dot-pending {
+    @apply bg-warning;
+    box-shadow: 0 0 8px hsl(var(--warning));
+  }
+
+  .status-dot-received {
+    @apply bg-info;
+    box-shadow: 0 0 8px hsl(var(--info));
+  }
+
+  .status-dot-progress {
+    @apply bg-accent;
+    box-shadow: 0 0 8px hsl(var(--accent));
+  }
+
+  .status-dot-completed {
+    @apply bg-success;
+    box-shadow: 0 0 8px hsl(var(--success));
+  }
+
+  .status-dot-cancelled {
+    @apply bg-destructive;
+    box-shadow: 0 0 8px hsl(var(--destructive));
+  }
+
+  /* Operational data table styling */
+  .data-table {
+    @apply border-collapse border-spacing-0 w-full;
+  }
+
+  .data-table th {
+    @apply bg-muted/50 border-b border-border px-4 py-3 text-left text-sm font-semibold;
+  }
+
+  .data-table td {
+    @apply border-b border-border/50 px-4 py-3 text-sm;
+  }
+
+  .data-table tr:hover {
+    @apply bg-muted/30;
+  }
+
+  /* Police form styling */
+  .form-section {
+    @apply space-y-6 p-6 border border-border rounded-xl bg-card;
+  }
+
+  .form-section h3 {
+    @apply text-lg font-semibold text-foreground mb-4;
+  }
+
+  /* Photo upload grid */
+  .photo-grid {
+    @apply grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4;
+  }
+
+  .photo-slot {
+    @apply aspect-square border-2 border-dashed border-border rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors cursor-pointer flex items-center justify-center;
+  }
+
+  .photo-slot-filled {
+    @apply border-solid border-primary bg-primary/10;
+  }
+
+  /* Dashboard metrics */
+  .metric-card {
+    @apply bg-card border border-border rounded-xl p-6;
+  }
+
+  .metric-value {
+    @apply text-3xl font-bold text-foreground;
+  }
+
+  .metric-label {
+    @apply text-sm text-muted-foreground uppercase tracking-wide;
+  }
+
+  .metric-trend-up {
+    @apply text-success;
+  }
+
+  .metric-trend-down {
+    @apply text-destructive;
+  }
+
+  .metric-trend-neutral {
+    @apply text-muted-foreground;
+  }
 }
 
 @layer utilities {

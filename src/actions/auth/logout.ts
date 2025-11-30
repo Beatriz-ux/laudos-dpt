@@ -1,12 +1,14 @@
 "use server"
 
-import { authenticateLogout } from "@/modules/auth"
+import { destroySession } from "@/modules/auth"
+import type { ActionResponse } from "@/types"
 
-export async function logoutAction() {
-	try {
-		await authenticateLogout()
-		return { success: true }
-	} catch (error) {
-		return { error: "Error logging out. Try again later." }
-	}
+export async function logout(): Promise<ActionResponse<void>> {
+  try {
+    await destroySession()
+    return { success: true }
+  } catch (error: any) {
+    console.error("Logout error:", error)
+    return { success: false, error: "Erro ao fazer logout" }
+  }
 }
