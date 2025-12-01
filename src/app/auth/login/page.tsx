@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/modules/auth"
-import Form from "./form"
+import LoginForm from "./form"
 
 export default async function Login() {
 	const user = await getCurrentUser()
@@ -14,10 +14,5 @@ export default async function Login() {
 		}
 	}
 
-	return (
-		<main className="flex min-h-dvh flex-col items-center justify-center p-24">
-			<h1 className="text-2xl font-bold">Login</h1>
-			<Form />
-		</main>
-	)
+	return <LoginForm />
 }
