@@ -1,10 +1,13 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { login } from "@/actions/auth/login";
 
 export default function Form() {
+  const router = useRouter();
+
   async function loginClient(formData: FormData) {
     const res = await login({
       email: formData.get("email") as string,
@@ -14,7 +17,16 @@ export default function Form() {
     if ("error" in res) {
       toast.error(res.error);
     } else {
-      toast.success("User logged in successfully");
+      toast.success("Login realizado com sucesso");
+
+      // Redireciona para o dashboard apropriado baseado na role
+      if (res.data?.role === "AGENT") {
+        router.push("/agent/dashboard");
+      } else if (res.data?.role === "OFFICER") {
+        router.push("/officer/dashboard");
+      } else {
+        router.push("/");
+      }
     }
   }
 
