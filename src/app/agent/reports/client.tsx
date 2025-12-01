@@ -2,12 +2,13 @@
 
 import { useState, useMemo } from "react"
 import Link from "next/link"
-import { Plus, Eye, UserCheck, X, Search } from "lucide-react"
+import { Eye, UserCheck, X, Search } from "lucide-react"
 import { assignReport } from "@/actions/reports/assign-report"
 import { cancelReport } from "@/actions/reports/cancel-report"
 import type { User, Report } from "@/types"
 import { STATUS_LABELS, PRIORITY_LABELS } from "@/types"
 import { useRouter } from "next/navigation"
+import { CreateReportDialog } from "@/components/create-report-dialog"
 
 interface AgentReportsClientProps {
   user: User
@@ -96,13 +97,7 @@ export function AgentReportsClient({ user, reports, officers }: AgentReportsClie
             <h1 className="text-3xl font-bold text-foreground">Laudos</h1>
             <p className="text-muted-foreground">Gerenciar todos os laudos do sistema</p>
           </div>
-          <Link
-            href="/agent/reports/create"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Laudo
-          </Link>
+          <CreateReportDialog officers={officers} />
         </div>
 
         {/* Search and Filters */}

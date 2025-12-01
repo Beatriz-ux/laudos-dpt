@@ -1,22 +1,28 @@
-"use server"
+"use server";
 
-import { prisma } from "@/lib/prisma"
-import { requireAuth } from "@/modules/auth"
-import type { ActionResponse, DashboardStats } from "@/types"
+import { prisma } from "@/lib/prisma";
+import { requireAuth } from "@/modules/auth";
+import type { ActionResponse, DashboardStats } from "@/types";
 
-export async function getDashboardStats(userId?: string): Promise<ActionResponse<DashboardStats>> {
+export async function getDashboardStats(
+  userId?: string
+): Promise<ActionResponse<DashboardStats>> {
   try {
-    const currentUser = await requireAuth()
+    const currentUser = await requireAuth();
 
     // Para AGENT: estatísticas gerais do sistema
     // Para OFFICER: apenas seus próprios laudos
-    const where: any = {}
+    const where: any = {};
 
     if (currentUser.role === "OFFICER") {
-      where.assignedTo = currentUser.id
+      where.assignedTo = currentUser.id;
     } else if (userId) {
-      where.assignedTo = userId
+      where.assignedTo = userId;
     }
+
+    // Calculate overdue threshold (3 days ago)
+    const threeDaysAgo = new Date();
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
     const [
       totalReports,
@@ -25,6 +31,7 @@ export async function getDashboardStats(userId?: string): Promise<ActionResponse
       inProgressReports,
       completedReports,
       cancelledReports,
+      overdueReports,
     ] = await Promise.all([
       prisma.report.count({ where }),
       prisma.report.count({ where: { ...where, status: "PENDING" } }),
@@ -32,7 +39,14 @@ export async function getDashboardStats(userId?: string): Promise<ActionResponse
       prisma.report.count({ where: { ...where, status: "IN_PROGRESS" } }),
       prisma.report.count({ where: { ...where, status: "COMPLETED" } }),
       prisma.report.count({ where: { ...where, status: "CANCELLED" } }),
-    ])
+      prisma.report.count({
+        where: {
+          ...where,
+          assignedAt: { lt: threeDaysAgo },
+          status: { not: "COMPLETED" },
+        },
+      }),
+    ]);
 
     const stats: DashboardStats = {
       totalReports,
@@ -41,12 +55,16 @@ export async function getDashboardStats(userId?: string): Promise<ActionResponse
       inProgressReports,
       completedReports,
       cancelledReports,
+      overdueReports,
       myReports: currentUser.role === "OFFICER" ? totalReports : undefined,
-    }
+    };
 
-    return { success: true, data: stats }
+    return { success: true, data: stats };
   } catch (error: any) {
-    console.error("Get dashboard stats error:", error)
-    return { success: false, error: error.message || "Erro ao buscar estatísticas" }
+    console.error("Get dashboard stats error:", error);
+    return {
+      success: false,
+      error: error.message || "Erro ao buscar estatísticas",
+    };
   }
 }

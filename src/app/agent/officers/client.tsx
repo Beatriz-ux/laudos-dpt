@@ -1,12 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { UserPlus, Search, X } from "lucide-react";
-import { createOfficer } from "@/actions/officers/create-officer";
+import { Search } from "lucide-react";
 import type { User } from "@/types";
 import { DEPARTMENT_LABELS } from "@/types";
-import type { Department } from "@prisma/client";
+import { CreateOfficerDialog } from "@/components/create-officer-dialog";
 
 interface AgentOfficersClientProps {
   user: User;
@@ -17,19 +15,7 @@ export function AgentOfficersClient({
   user,
   officers,
 }: AgentOfficersClientProps) {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    name: "",
-    department: "TRAFFIC" as Department,
-    badge: "",
-    password: "",
-  });
 
   const filteredOfficers = useMemo(() => {
     if (!searchTerm) return officers;
@@ -49,41 +35,6 @@ export function AgentOfficersClient({
     (o) => o.department === "TRAFFIC"
   ).length;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsSubmitting(true);
-
-    try {
-      const result = await createOfficer(formData);
-
-      if (result.success) {
-        setIsModalOpen(false);
-        setFormData({
-          username: "",
-          email: "",
-          name: "",
-          department: "TRAFFIC",
-          badge: "",
-          password: "",
-        });
-        router.refresh();
-        alert("Policial cadastrado com sucesso!");
-      } else {
-        setError(result.error || "Erro ao cadastrar policial");
-      }
-    } catch (err: any) {
-      setError(err.message || "Erro ao cadastrar policial");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (error) setError("");
-  };
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -94,13 +45,7 @@ export function AgentOfficersClient({
             Cadastre e gerencie os policiais do sistema
           </p>
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <UserPlus className="mr-2 h-4 w-4" />
-          Novo Policial
-        </button>
+        <CreateOfficerDialog />
       </div>
 
       {/* Stats Cards */}
@@ -201,169 +146,6 @@ export function AgentOfficersClient({
           </table>
         </div>
       </div>
-
-      {/* Modal de Criar Policial */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-card border-b p-6 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-semibold">Cadastrar Novo Policial</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Preencha os dados do novo policial
-                </p>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                disabled={isSubmitting}
-                className="rounded-md p-2 hover:bg-muted"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {/* Nome Completo */}
-              <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium">
-                  Nome Completo *
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                  placeholder="Digite o nome completo"
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-
-              {/* Username e Email */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="username" className="text-sm font-medium">
-                    Usuário *
-                  </label>
-                  <input
-                    id="username"
-                    type="text"
-                    value={formData.username}
-                    onChange={(e) => handleInputChange("username", e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    placeholder="usuario.nome"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">
-                    Email *
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    placeholder="email@dpt.ba.gov.br"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-              </div>
-
-              {/* Departamento e Matrícula */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="department" className="text-sm font-medium">
-                    Departamento *
-                  </label>
-                  <select
-                    id="department"
-                    value={formData.department}
-                    onChange={(e) =>
-                      handleInputChange("department", e.target.value)
-                    }
-                    required
-                    disabled={isSubmitting}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <option value="TRAFFIC">Trânsito</option>
-                    <option value="CRIMINAL">Criminal</option>
-                    <option value="ADMINISTRATIVE">Administrativo</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="badge" className="text-sm font-medium">
-                    Matrícula *
-                  </label>
-                  <input
-                    id="badge"
-                    type="text"
-                    value={formData.badge}
-                    onChange={(e) => handleInputChange("badge", e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    placeholder="POL-001"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-              </div>
-
-              {/* Senha */}
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Senha Temporária *
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange("password", e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                  placeholder="Mínimo 8 caracteres"
-                  minLength={8}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                />
-                <p className="text-xs text-muted-foreground">
-                  O policial será obrigado a alterar a senha no primeiro acesso
-                </p>
-              </div>
-
-              {/* Error Alert */}
-              {error && (
-                <div className="rounded-lg border border-destructive bg-destructive/10 p-4">
-                  <p className="text-sm text-destructive">{error}</p>
-                </div>
-              )}
-
-              {/* Buttons */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  disabled={isSubmitting}
-                  className="flex-1 inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted disabled:pointer-events-none disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
-                >
-                  {isSubmitting ? "Cadastrando..." : "Cadastrar Policial"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
