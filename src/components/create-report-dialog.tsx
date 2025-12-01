@@ -25,9 +25,10 @@ import { Button } from "@/components/ui/button";
 
 interface CreateReportDialogProps {
   officers: User[];
+  trigger?: React.ReactNode;
 }
 
-export function CreateReportDialog({ officers }: CreateReportDialogProps) {
+export function CreateReportDialog({ officers, trigger }: CreateReportDialogProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -105,10 +106,12 @@ export function CreateReportDialog({ officers }: CreateReportDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Novo Laudo
-        </Button>
+        {trigger || (
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Laudo
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>

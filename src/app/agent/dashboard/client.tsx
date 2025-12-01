@@ -4,17 +4,20 @@ import Link from "next/link"
 import { Plus, FileText, Clock, CheckCircle, AlertTriangle, Users } from "lucide-react"
 import type { User, DashboardStats, Report } from "@/types"
 import { STATUS_LABELS, PRIORITY_LABELS } from "@/types"
+import { CreateReportDialog } from "@/components/create-report-dialog"
 
 interface AgentDashboardClientProps {
   user: User
   stats: DashboardStats | null
   recentReports: Report[]
+  officers: User[]
 }
 
 export function AgentDashboardClient({
   user,
   stats,
   recentReports,
+  officers,
 }: AgentDashboardClientProps) {
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return "-"
@@ -39,13 +42,7 @@ export function AgentDashboardClient({
               Bem-vindo, {user.name} • Central de Controle
             </p>
           </div>
-          <Link
-            href="/agent/reports/create"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Laudo
-          </Link>
+          <CreateReportDialog officers={officers} />
         </div>
 
         {/* Stats Cards */}
@@ -166,13 +163,15 @@ export function AgentDashboardClient({
               </p>
             </div>
             <div className="p-6 pt-3 space-y-3">
-              <Link
-                href="/agent/reports/create"
-                className="flex items-center justify-start w-full p-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                <Plus className="h-5 w-5 mr-3" />
-                Criar Novo Laudo
-              </Link>
+              <CreateReportDialog
+                officers={officers}
+                trigger={
+                  <button className="flex items-center justify-start w-full p-4 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                    <Plus className="h-5 w-5 mr-3" />
+                    Criar Novo Laudo
+                  </button>
+                }
+              />
 
               <Link
                 href="/agent/reports"
