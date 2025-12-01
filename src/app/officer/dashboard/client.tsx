@@ -69,7 +69,6 @@ export function OfficerDashboardClient({
   }
 
   return (
-    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
         <div>
@@ -238,6 +237,5 @@ export function OfficerDashboardClient({
           </div>
         </div>
       </div>
-    </div>
   )
 }

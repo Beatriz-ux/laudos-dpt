@@ -89,7 +89,6 @@ export function AgentReportsClient({ user, reports, officers }: AgentReportsClie
   }
 
   return (
-    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -281,6 +280,5 @@ export function AgentReportsClient({ user, reports, officers }: AgentReportsClie
           </div>
         )}
       </div>
-    </div>
   )
 }

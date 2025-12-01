@@ -30,7 +30,6 @@ export function AgentOfficersClient({ user, officers }: AgentOfficersClientProps
   const trafficOfficers = officers.filter((o) => o.department === "TRAFFIC").length
 
   return (
-    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -134,6 +133,5 @@ export function AgentOfficersClient({ user, officers }: AgentOfficersClientProps
           </div>
         </div>
       </div>
-    </div>
   )
 }
