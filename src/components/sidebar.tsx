@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Shield,
   LayoutDashboard,
@@ -15,27 +15,34 @@ import {
   LogOut,
   Menu,
   X,
-} from "lucide-react"
-import { logout } from "@/actions/auth/logout"
-import type { User as UserType } from "@/types"
-import { DEPARTMENT_LABELS } from "@/types"
+} from "lucide-react";
+import { logout } from "@/actions/auth/logout";
+import type { User as UserType } from "@/types";
+import { DEPARTMENT_LABELS } from "@/types";
 
 interface SidebarProps {
-  user: UserType
+  user: UserType;
 }
 
-export function Sidebar({ user }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const pathname = usePathname()
-  const router = useRouter()
+type Route = {
+  name: string;
+  href: string;
+  icon: React.ComponentType<any>;
+  disabled?: boolean;
+};
 
-  const agentNavigation = [
+export function Sidebar({ user }: SidebarProps) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const agentNavigation: Route[] = [
     { name: "Dashboard", href: "/agent/dashboard", icon: LayoutDashboard },
     { name: "Laudos", href: "/agent/reports", icon: FileText },
     { name: "Policiais", href: "/agent/officers", icon: Users },
-  ]
+  ];
 
-  const officerNavigation = [
+  const officerNavigation: Route[] = [
     { name: "Dashboard", href: "/officer/dashboard", icon: LayoutDashboard },
     { name: "Recebidos", href: "/officer/reports/received", icon: Inbox },
     {
@@ -50,18 +57,19 @@ export function Sidebar({ user }: SidebarProps) {
       icon: CheckCircle,
       disabled: true,
     },
-  ]
+  ];
 
-  const navigation = user.role === "AGENT" ? agentNavigation : officerNavigation
+  const navigation =
+    user.role === "AGENT" ? agentNavigation : officerNavigation;
 
   const handleLogout = async () => {
-    await logout()
-    router.push("/auth/login")
-  }
+    await logout();
+    router.push("/auth/login");
+  };
 
   const isActive = (href: string) => {
-    return pathname === href
-  }
+    return pathname === href;
+  };
 
   return (
     <div
@@ -74,14 +82,20 @@ export function Sidebar({ user }: SidebarProps) {
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
             <Shield className="h-8 w-8 text-primary" />
-            <span className="text-lg font-bold text-foreground">Sistema Laudos</span>
+            <span className="text-lg font-bold text-foreground">
+              Sistema Laudos
+            </span>
           </div>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground h-9 w-9"
         >
-          {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+          {isCollapsed ? (
+            <Menu className="h-4 w-4" />
+          ) : (
+            <X className="h-4 w-4" />
+          )}
         </button>
       </div>
 
@@ -94,7 +108,9 @@ export function Sidebar({ user }: SidebarProps) {
                 <User className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                <p className="text-sm font-medium text-foreground truncate">
+                  {user.name}
+                </p>
                 <p className="text-xs text-muted-foreground truncate">
                   {user.badge} • {DEPARTMENT_LABELS[user.department]}
                 </p>
@@ -122,8 +138,8 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navigation.map((item) => {
-          const Icon = item.icon
-          const active = isActive(item.href)
+          const Icon = item.icon;
+          const active = isActive(item.href);
 
           if (item.disabled) {
             return (
@@ -134,7 +150,7 @@ export function Sidebar({ user }: SidebarProps) {
                 <Icon className={`h-5 w-5 ${!isCollapsed && "mr-3"}`} />
                 {!isCollapsed && item.name}
               </div>
-            )
+            );
           }
 
           return (
@@ -150,7 +166,7 @@ export function Sidebar({ user }: SidebarProps) {
               <Icon className={`h-5 w-5 ${!isCollapsed && "mr-3"}`} />
               {!isCollapsed && item.name}
             </Link>
-          )
+          );
         })}
       </nav>
 
@@ -179,5 +195,5 @@ export function Sidebar({ user }: SidebarProps) {
         </button>
       </div>
     </div>
-  )
+  );
 }
