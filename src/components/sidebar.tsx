@@ -46,16 +46,14 @@ export function Sidebar({ user }: SidebarProps) {
     { name: "Dashboard", href: "/officer/dashboard", icon: LayoutDashboard },
     { name: "Recebidos", href: "/officer/reports/received", icon: Inbox },
     {
-      name: "Rascunhos",
-      href: "/officer/reports/draft",
+      name: "Em Andamento",
+      href: "/officer/reports/in-progress",
       icon: FileEdit,
-      disabled: true,
     },
     {
       name: "Concluídos",
       href: "/officer/reports/completed",
       icon: CheckCircle,
-      disabled: true,
     },
   ];
 

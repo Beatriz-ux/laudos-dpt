@@ -251,14 +251,13 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
               Atribuir a Policial (Opcional)
             </label>
             <Select
-              value={formData.assignedTo}
+              value={formData.assignedTo || undefined}
               onValueChange={(value) => handleInputChange("assignedTo", value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecione um policial" />
+                <SelectValue placeholder="Selecione um policial (opcional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Não atribuir agora</SelectItem>
                 {officers.map((officer) => (
                   <SelectItem key={officer.id} value={officer.id}>
                     {officer.name} - {officer.badge}
