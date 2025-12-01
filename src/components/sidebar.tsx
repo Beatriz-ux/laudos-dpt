@@ -62,6 +62,8 @@ export function Sidebar({ user }: SidebarProps) {
   const navigation =
     user.role === "AGENT" ? agentNavigation : officerNavigation;
 
+  const profileHref = user.role === "AGENT" ? "/agent/profile" : "/officer/profile";
+
   const handleLogout = async () => {
     await logout();
     router.push("/auth/login");
@@ -173,9 +175,9 @@ export function Sidebar({ user }: SidebarProps) {
       {/* Footer */}
       <div className="p-4 border-t border-border space-y-2">
         <Link
-          href="/profile"
+          href={profileHref}
           className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-            pathname === "/profile"
+            isActive(profileHref)
               ? "bg-accent text-accent-foreground"
               : "text-foreground hover:bg-accent/50 hover:text-accent-foreground"
           }`}
