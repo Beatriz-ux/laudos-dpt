@@ -9,10 +9,10 @@ export async function login(
   credentials: LoginCredentials
 ): Promise<ActionResponse<User>> {
   try {
-    const { username, password, newPassword } = credentials;
+    const { email, password, newPassword } = credentials;
 
     const profile = await prisma.profile.findUnique({
-      where: { username },
+      where: { email },
       include: { roles: true },
     });
 

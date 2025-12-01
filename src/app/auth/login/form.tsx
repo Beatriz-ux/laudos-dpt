@@ -7,7 +7,7 @@ import { login } from "@/actions/auth/login";
 export default function Form() {
   async function loginClient(formData: FormData) {
     const res = await login({
-      username: formData.get("email") as string,
+      email: formData.get("email") as string,
       password: formData.get("password") as string,
     });
 
