@@ -99,7 +99,8 @@ model Report {
   preambulo                 String?       @map("preambulo") @db.Text
   historico                 String?       @map("historico") @db.Text
   placaPortada              String?       @map("placa_portada")
-  especieTipo               String?       @map("especie_tipo")
+  vehicleSpecies            String?       @map("vehicle_species")
+  vehicleType               String?       @map("vehicle_type")
   vidro                     String?       @map("vidro")
   outrasNumeracoes          String?       @map("outras_numeracoes") @db.Text
 
@@ -131,6 +132,18 @@ model Report {
   motorInfo                 String?       @map("motor_info") @db.Text
   centralEletronicaInfo     String?       @map("central_eletronica_info") @db.Text
   seriesAuxiliares          String?       @map("series_auxiliares") @db.Text
+
+  // Dados originais (quando veículo for adulterado)
+  originalPlate             String?       @map("original_plate")
+  originalBrand             String?       @map("original_brand")
+  originalModel             String?       @map("original_model")
+  originalSpecies           String?       @map("original_species")
+  originalType              String?       @map("original_type")
+  originalColor             String?       @map("original_color")
+  originalChassi            String?       @map("original_chassi")
+  originalMotor             String?       @map("original_motor")
+  originalLicensedTo        String?       @map("original_licensed_to")
+  originalAnalysisDetails   String?       @map("original_analysis_details") @db.Text
 
   // Análise e Conclusão
   analysisIsConclusive      Boolean?      @map("analysis_is_conclusive")

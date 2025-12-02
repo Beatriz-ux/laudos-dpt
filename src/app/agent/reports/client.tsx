@@ -220,7 +220,7 @@ export function AgentReportsClient({ user, reports, officers }: AgentReportsClie
                                 className="inline-flex items-center justify-center rounded-md border px-3 py-1 text-xs hover:bg-muted"
                               >
                                 <UserCheck className="h-3 w-3 mr-1" />
-                                Atribuir
+                                {report.assignedTo ? "Reatribuir" : "Atribuir"}
                               </button>
                             )}
                             {report.status !== "COMPLETED" &&

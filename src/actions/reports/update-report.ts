@@ -131,8 +131,17 @@ export async function updateReport(
       }
     }
 
-    if (input.signature !== undefined) {
-      updateData.expertSignature = input.signature
+    if (input.original) {
+      if (input.original.plate !== undefined) updateData.originalPlate = input.original.plate
+      if (input.original.brand !== undefined) updateData.originalBrand = input.original.brand
+      if (input.original.model !== undefined) updateData.originalModel = input.original.model
+      if (input.original.species !== undefined) updateData.originalSpecies = input.original.species
+      if (input.original.type !== undefined) updateData.originalType = input.original.type
+      if (input.original.color !== undefined) updateData.originalColor = input.original.color
+      if (input.original.chassi !== undefined) updateData.originalChassi = input.original.chassi
+      if (input.original.motor !== undefined) updateData.originalMotor = input.original.motor
+      if (input.original.licensedTo !== undefined) updateData.originalLicensedTo = input.original.licensedTo
+      if (input.original.analysisDetails !== undefined) updateData.originalAnalysisDetails = input.original.analysisDetails
     }
 
     if (input.assignedTo !== undefined) {

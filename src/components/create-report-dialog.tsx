@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Plus, ChevronRight, ChevronLeft } from "lucide-react";
 import { createReport } from "@/actions/reports/create-report";
 import type { Priority, User } from "@/types";
-import { PRIORITY_LABELS } from "@/types";
+import { PRIORITY_LABELS, VehicleSpecies, VehicleType } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -60,7 +60,8 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
     placaPortada: "",
     vehicleBrand: "",
     vehicleModel: "",
-    especieTipo: "",
+    vehicleSpecies: "",
+    vehicleType: "",
     vehicleColor: "",
     vidro: "",
     vehicleMotor: "",
@@ -70,7 +71,6 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
     // Etapa 4: Perícia
     objetivoPericia: "",
     preambulo: "",
-    historico: "",
 
     // Etapa 5: Atribuição
     assignedTo: "",
@@ -98,18 +98,18 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
         ocorrenciaPolicial: formData.ocorrenciaPolicial,
         objetivoPericia: formData.objetivoPericia,
         preambulo: formData.preambulo,
-        historico: formData.historico,
         placaPortada: formData.placaPortada,
-        especieTipo: formData.especieTipo,
-        vidro: formData.vidro,
-        outrasNumeracoes: formData.outrasNumeracoes,
+        vehicleSpecies: formData.vehicleSpecies,
+        vehicleType: formData.vehicleType,
+        vidro: formData.vidro || undefined,
+        outrasNumeracoes: formData.outrasNumeracoes || undefined,
         vehicle: {
           plate: formData.placaPortada.toUpperCase(),
           brand: formData.vehicleBrand,
           model: formData.vehicleModel,
           color: formData.vehicleColor,
-          motor: formData.vehicleMotor,
-          chassi: formData.vehicleChassi,
+          motor: formData.vehicleMotor || undefined,
+          chassi: formData.vehicleChassi || undefined,
         },
         assignedTo: formData.assignedTo || undefined,
       });
@@ -129,7 +129,8 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
           placaPortada: "",
           vehicleBrand: "",
           vehicleModel: "",
-          especieTipo: "",
+          vehicleSpecies: "",
+          vehicleType: "",
           vehicleColor: "",
           vidro: "",
           vehicleMotor: "",
@@ -137,7 +138,6 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
           outrasNumeracoes: "",
           objetivoPericia: "",
           preambulo: "",
-          historico: "",
           assignedTo: "",
         });
         router.refresh();
@@ -157,6 +157,14 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
     if (error) setError("");
   };
 
+  const fillDefaultData = () => {
+    setFormData((prev) => ({
+      ...prev,
+      objetivoPericia: "Proceder a exame pericial de Identificação de Veículo, a fim de constatar sua originalidade",
+      preambulo: "A signatária perita deste Departamento de Polícia Técnica, designada por sua coordenadora para atender à requisição da autoridade, apresenta o resultado de seus trabalhos",
+    }));
+  };
+
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -166,16 +174,15 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
   const isStepValid = () => {
     switch (currentStep) {
       case 1:
-        return formData.priority && formData.oficio;
+        return formData.priority && formData.oficio && formData.deadline;
       case 2:
         return formData.orgaoRequisitante && formData.autoridadeRequisitante &&
                formData.guiaOficio && formData.dataGuiaOficio && formData.ocorrenciaPolicial;
       case 3:
         return formData.placaPortada && formData.vehicleBrand && formData.vehicleModel &&
-               formData.especieTipo && formData.vehicleColor && formData.vidro &&
-               formData.vehicleMotor && formData.vehicleChassi;
+               formData.vehicleSpecies && formData.vehicleType && formData.vehicleColor;
       case 4:
-        return formData.objetivoPericia && formData.preambulo && formData.historico;
+        return formData.objetivoPericia && formData.preambulo;
       case 5:
         return true; // Atribuição é opcional
       default:
@@ -376,38 +383,64 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
           {/* Etapa 3: Informações do Veículo */}
           {currentStep === 3 && (
             <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="placaPortada" className="text-sm font-medium">
+                  Placa Portada *
+                </label>
+                <input
+                  id="placaPortada"
+                  type="text"
+                  value={formData.placaPortada}
+                  onChange={(e) => handleInputChange("placaPortada", e.target.value.toUpperCase())}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="ABC1234"
+                  maxLength={7}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="placaPortada" className="text-sm font-medium">
-                    Placa Portada *
+                  <label htmlFor="vehicleSpecies" className="text-sm font-medium">
+                    Espécie *
                   </label>
-                  <input
-                    id="placaPortada"
-                    type="text"
-                    value={formData.placaPortada}
-                    onChange={(e) => handleInputChange("placaPortada", e.target.value.toUpperCase())}
-                    required
-                    disabled={isSubmitting}
-                    placeholder="ABC1234"
-                    maxLength={7}
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+                  <Select
+                    value={formData.vehicleSpecies}
+                    onValueChange={(value) => handleInputChange("vehicleSpecies", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a espécie" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(VehicleSpecies).map(([key, value]) => (
+                        <SelectItem key={key} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="especieTipo" className="text-sm font-medium">
-                    Espécie/Tipo *
+                  <label htmlFor="vehicleType" className="text-sm font-medium">
+                    Tipo *
                   </label>
-                  <input
-                    id="especieTipo"
-                    type="text"
-                    value={formData.especieTipo}
-                    onChange={(e) => handleInputChange("especieTipo", e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    placeholder="Ex: Automóvel, Caminhonete"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+                  <Select
+                    value={formData.vehicleType}
+                    onValueChange={(value) => handleInputChange("vehicleType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(VehicleType).map(([key, value]) => (
+                        <SelectItem key={key} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -464,14 +497,13 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
 
                 <div className="space-y-2">
                   <label htmlFor="vidro" className="text-sm font-medium">
-                    Vidro *
+                    Vidro (Opcional)
                   </label>
                   <input
                     id="vidro"
                     type="text"
                     value={formData.vidro}
                     onChange={(e) => handleInputChange("vidro", e.target.value)}
-                    required
                     disabled={isSubmitting}
                     placeholder="Informações do vidro"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -482,14 +514,13 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="vehicleMotor" className="text-sm font-medium">
-                    Numeração do Motor *
+                    Numeração do Motor (Opcional)
                   </label>
                   <input
                     id="vehicleMotor"
                     type="text"
                     value={formData.vehicleMotor}
                     onChange={(e) => handleInputChange("vehicleMotor", e.target.value)}
-                    required
                     disabled={isSubmitting}
                     placeholder="Número do motor"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -498,14 +529,13 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
 
                 <div className="space-y-2">
                   <label htmlFor="vehicleChassi" className="text-sm font-medium">
-                    CHASSI *
+                    CHASSI (Opcional)
                   </label>
                   <input
                     id="vehicleChassi"
                     type="text"
                     value={formData.vehicleChassi}
                     onChange={(e) => handleInputChange("vehicleChassi", e.target.value)}
-                    required
                     disabled={isSubmitting}
                     placeholder="Número do chassi"
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
@@ -515,13 +545,12 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
 
               <div className="space-y-2">
                 <label htmlFor="outrasNumeracoes" className="text-sm font-medium">
-                  Outras Numerações *
+                  Outras Numerações (Opcional)
                 </label>
                 <textarea
                   id="outrasNumeracoes"
                   value={formData.outrasNumeracoes}
                   onChange={(e) => handleInputChange("outrasNumeracoes", e.target.value)}
-                  required
                   disabled={isSubmitting}
                   placeholder="Outras numerações relevantes"
                   rows={3}
@@ -534,6 +563,18 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
           {/* Etapa 4: Perícia */}
           {currentStep === 4 && (
             <div className="space-y-4">
+              <div className="flex justify-end mb-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={fillDefaultData}
+                  disabled={isSubmitting}
+                  size="sm"
+                >
+                  Preencher com dados padrão
+                </Button>
+              </div>
+
               <div className="space-y-2">
                 <label htmlFor="objetivoPericia" className="text-sm font-medium">
                   Objetivo da Perícia *
@@ -561,22 +602,6 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
                   required
                   disabled={isSubmitting}
                   placeholder="Texto do preâmbulo"
-                  rows={4}
-                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label htmlFor="historico" className="text-sm font-medium">
-                  Histórico *
-                </label>
-                <textarea
-                  id="historico"
-                  value={formData.historico}
-                  onChange={(e) => handleInputChange("historico", e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                  placeholder="Histórico do caso"
                   rows={4}
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 />

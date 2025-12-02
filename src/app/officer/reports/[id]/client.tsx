@@ -58,13 +58,14 @@ export function OfficerReportDetailClient({
   report,
 }: OfficerReportDetailClientProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"vehicle" | "photos" | "evidence" | "analysis">("vehicle");
+  const [activeTab, setActiveTab] = useState<"vehicle" | "photos" | "evidence" | "original" | "analysis">("vehicle");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [photos, setPhotos] = useState<PhotoUpload[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentPhotoCategory, setCurrentPhotoCategory] = useState("");
+  const [currentPhotoSubtype, setCurrentPhotoSubtype] = useState<string | undefined>(undefined);
   const [showFinalizeDialog, setShowFinalizeDialog] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -88,13 +89,24 @@ export function OfficerReportDetailClient({
       centralEletronicaInfo: report.centralEletronicaInfo || "",
       seriesAuxiliares: report.seriesAuxiliares || "",
     },
+    original: {
+      plate: report.originalPlate || "",
+      brand: report.originalBrand || "",
+      model: report.originalModel || "",
+      species: report.originalSpecies || "",
+      type: report.originalType || "",
+      color: report.originalColor || "",
+      chassi: report.originalChassi || "",
+      motor: report.originalMotor || "",
+      licensedTo: report.originalLicensedTo || "",
+      analysisDetails: report.originalAnalysisDetails || "",
+    },
     analysis: {
       conclusion: report.analysis?.conclusion || "",
       justification: report.analysis?.justification || "",
       observations: report.analysis?.observations || "",
       isConclusive: report.analysis?.isConclusive,
     },
-    signature: report.expertSignature || "",
   });
 
   const canEdit = report.status === "IN_PROGRESS" || report.status === "RECEIVED";
@@ -111,7 +123,7 @@ export function OfficerReportDetailClient({
     if (error) setError("");
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>, category: string, subtype?: string) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -135,8 +147,8 @@ export function OfficerReportDetailClient({
       const base64 = event.target?.result as string;
       const newPhoto: PhotoUpload = {
         id: Math.random().toString(36).substr(2, 9),
-        category,
-        subtype,
+        category: currentPhotoCategory,
+        subtype: currentPhotoSubtype,
         photoData: base64,
       };
       setPhotos((prev) => [...prev, newPhoto]);
@@ -182,6 +194,18 @@ export function OfficerReportDetailClient({
           centralEletronicaInfo: formData.info.centralEletronicaInfo,
           seriesAuxiliares: formData.info.seriesAuxiliares,
         },
+        original: formData.vehicle.isAdulterated ? {
+          plate: formData.original.plate,
+          brand: formData.original.brand,
+          model: formData.original.model,
+          species: formData.original.species,
+          type: formData.original.type,
+          color: formData.original.color,
+          chassi: formData.original.chassi,
+          motor: formData.original.motor,
+          licensedTo: formData.original.licensedTo,
+          analysisDetails: formData.original.analysisDetails,
+        } : undefined,
         analysis: {
           conclusion: formData.analysis.conclusion,
           justification: formData.analysis.justification,
@@ -236,13 +260,24 @@ export function OfficerReportDetailClient({
           centralEletronicaInfo: formData.info.centralEletronicaInfo,
           seriesAuxiliares: formData.info.seriesAuxiliares,
         },
+        original: formData.vehicle.isAdulterated ? {
+          plate: formData.original.plate,
+          brand: formData.original.brand,
+          model: formData.original.model,
+          species: formData.original.species,
+          type: formData.original.type,
+          color: formData.original.color,
+          chassi: formData.original.chassi,
+          motor: formData.original.motor,
+          licensedTo: formData.original.licensedTo,
+          analysisDetails: formData.original.analysisDetails,
+        } : undefined,
         analysis: {
           conclusion: formData.analysis.conclusion,
           justification: formData.analysis.justification,
           observations: formData.analysis.observations,
           isConclusive: formData.analysis.isConclusive,
         },
-        signature: formData.signature,
         photos,
       });
 
@@ -373,16 +408,28 @@ export function OfficerReportDetailClient({
             Fotos ({photos.length})
           </button>
           {formData.vehicle.isAdulterated && (
-            <button
-              onClick={() => setActiveTab("evidence")}
-              className={`px-4 py-2 border-b-2 transition-colors ${
-                activeTab === "evidence"
-                  ? "border-primary text-primary font-medium"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Evidências de Adulteração
-            </button>
+            <>
+              <button
+                onClick={() => setActiveTab("evidence")}
+                className={`px-4 py-2 border-b-2 transition-colors ${
+                  activeTab === "evidence"
+                    ? "border-primary text-primary font-medium"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Evidências de Adulteração
+              </button>
+              <button
+                onClick={() => setActiveTab("original")}
+                className={`px-4 py-2 border-b-2 transition-colors ${
+                  activeTab === "original"
+                    ? "border-primary text-primary font-medium"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Dados Originais
+              </button>
+            </>
           )}
           <button
             onClick={() => setActiveTab("analysis")}
@@ -626,7 +673,7 @@ export function OfficerReportDetailClient({
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={(e) => handleFileSelect(e, currentPhotoCategory)}
+              onChange={handleFileSelect}
               className="hidden"
             />
 
@@ -638,6 +685,7 @@ export function OfficerReportDetailClient({
                     <Button
                       onClick={() => {
                         setCurrentPhotoCategory(cat.value);
+                        setCurrentPhotoSubtype(undefined);
                         fileInputRef.current?.click();
                       }}
                       size="sm"
@@ -705,6 +753,7 @@ export function OfficerReportDetailClient({
                     <Button
                       onClick={() => {
                         setCurrentPhotoCategory("evidence");
+                        setCurrentPhotoSubtype(evidence.value);
                         fileInputRef.current?.click();
                       }}
                       size="sm"
@@ -746,6 +795,155 @@ export function OfficerReportDetailClient({
                 )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Original Data Tab */}
+        {activeTab === "original" && formData.vehicle.isAdulterated && (
+          <div className="space-y-6">
+            <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 flex items-start gap-2 mb-4">
+              <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-blue-700 font-medium">
+                  Dados do Veículo Original
+                </p>
+                <p className="text-sm text-blue-600 mt-1">
+                  Preencha os dados do veículo original após consultar as bases de dados.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-lg border bg-card p-6 space-y-4">
+              <h3 className="text-lg font-semibold">Informações do Veículo Original</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Placa Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.plate}
+                    onChange={(e) => handleInputChange("original", "plate", e.target.value.toUpperCase())}
+                    disabled={!canEdit || isSaving}
+                    placeholder="ABC1234"
+                    maxLength={7}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Licenciado em Nome de</label>
+                  <input
+                    type="text"
+                    value={formData.original.licensedTo}
+                    onChange={(e) => handleInputChange("original", "licensedTo", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Nome do proprietário original"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Marca Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.brand}
+                    onChange={(e) => handleInputChange("original", "brand", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Ex: Toyota, Honda"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Modelo Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.model}
+                    onChange={(e) => handleInputChange("original", "model", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Ex: Corolla, Civic"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Espécie Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.species}
+                    onChange={(e) => handleInputChange("original", "species", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Espécie do veículo original"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Tipo Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.type}
+                    onChange={(e) => handleInputChange("original", "type", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Tipo do veículo original"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Cor Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.color}
+                    onChange={(e) => handleInputChange("original", "color", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Cor original"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">CHASSI Original</label>
+                  <input
+                    type="text"
+                    value={formData.original.chassi}
+                    onChange={(e) => handleInputChange("original", "chassi", e.target.value)}
+                    disabled={!canEdit || isSaving}
+                    placeholder="Chassi original"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Numeração do Motor Original</label>
+                <input
+                  type="text"
+                  value={formData.original.motor}
+                  onChange={(e) => handleInputChange("original", "motor", e.target.value)}
+                  disabled={!canEdit || isSaving}
+                  placeholder="Motor original"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Detalhes da Análise</label>
+                <textarea
+                  value={formData.original.analysisDetails}
+                  onChange={(e) => handleInputChange("original", "analysisDetails", e.target.value)}
+                  disabled={!canEdit || isSaving}
+                  placeholder="Detalhes sobre a comparação entre o veículo adulterado e o original"
+                  rows={5}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+            </div>
           </div>
         )}
 
@@ -821,23 +1019,6 @@ export function OfficerReportDetailClient({
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                 />
               </div>
-
-              {canEdit && (
-                <div className="space-y-2 pt-4 border-t">
-                  <label className="text-sm font-medium">Assinatura do Perito</label>
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Digite seu nome completo para assinar o laudo
-                  </p>
-                  <input
-                    type="text"
-                    value={formData.signature}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, signature: e.target.value }))}
-                    disabled={!canEdit || isSaving}
-                    placeholder="Nome completo do perito"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
-                </div>
-              )}
             </div>
           </div>
         )}

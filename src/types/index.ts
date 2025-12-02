@@ -163,19 +163,19 @@ export interface CreateReportInput {
   ocorrenciaPolicial: string;
   objetivoPericia: string;
   preambulo: string;
-  historico: string;
   placaPortada: string;
-  especieTipo: string;
-  vidro: string;
-  outrasNumeracoes: string;
+  vehicleSpecies: string;
+  vehicleType: string;
+  vidro?: string;
+  outrasNumeracoes?: string;
 
   vehicle: {
     plate: string;
     brand: string;
     model: string;
     color: string;
-    motor: string;
-    chassi: string;
+    motor?: string;
+    chassi?: string;
   };
 
   assignedTo?: string;
@@ -193,8 +193,19 @@ export interface UpdateReportInput {
     centralEletronicaInfo?: string;
     seriesAuxiliares?: string;
   };
+  original?: {
+    plate?: string;
+    brand?: string;
+    model?: string;
+    species?: string;
+    type?: string;
+    color?: string;
+    chassi?: string;
+    motor?: string;
+    licensedTo?: string;
+    analysisDetails?: string;
+  };
   analysis?: Partial<Analysis>;
-  signature?: string;
   assignedTo?: string | null;
   photos?: Array<{
     id?: string;
@@ -337,6 +348,48 @@ export type DeepPartial<T> = {
 export type Nullable<T> = T | null;
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+
+// Vehicle Enums
+export enum VehicleSpecies {
+  PASSAGEIRO = "PASSAGEIRO",
+  CARGA = "CARGA",
+  MISTO = "MISTO",
+  COMPETICAO = "COMPETIÇÃO",
+  COLECAO = "COLEÇÃO",
+  TRACAO = "TRAÇÃO",
+  ESPECIAL = "ESPECIAL",
+  LOCOMOCAO = "LOCOMOÇÃO",
+  ENSINO = "ENSINO",
+  AUTORIDADE = "AUTORIDADE",
+  VISITANTE = "VISITANTE"
+}
+
+export enum VehicleType {
+  AUTOMOVEL = "AUTOMÓVEL",
+  CAMIONETA = "CAMIONETA",
+  CAMIONETA_MISTA = "CAMIONETA MISTA",
+  CAMINHAO = "CAMINHÃO",
+  CAMINHAO_TRATOR = "CAMINHÃO TRATOR",
+  UTILITARIO = "UTILITÁRIO",
+  MICROONIBUS = "MICROÔNIBUS",
+  ONIBUS = "ÔNIBUS",
+  REBOQUE = "REBOQUE",
+  SEMI_REBOQUE = "SEMI-REBOQUE",
+  MOTOCICLETA = "MOTOCICLETA",
+  MOTONETA = "MOTONETA",
+  CICLOMOTOR = "CICLOMOTOR",
+  TRICICLO = "TRICICLO",
+  QUADRICICLO = "QUADRICICLO",
+  BICICLETA_MOTORIZADA = "BICICLETA MOTORIZADA",
+  ESPECIAL = "ESPECIAL",
+  SIDE_CAR = "SIDE-CAR",
+  CHASSI_PLATAFORMA = "CHASSI-PLATAFORMA",
+  TRATOR_RODAS = "TRATOR DE RODAS",
+  TRATOR_ESTEIRAS = "TRATOR DE ESTEIRAS",
+  TRATOR_MISTO = "TRATOR MISTO",
+  MAQUINA_TERRAPLANAGEM = "MÁQUINA DE TERRAPLANAGEM",
+  MAQUINA_AGRICOLA = "MÁQUINA AGRÍCOLA"
+}
 
 // Vehicle parts for photo upload
 export const VEHICLE_PARTS = [

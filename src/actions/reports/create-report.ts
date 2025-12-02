@@ -48,9 +48,9 @@ export async function createReport(
         ocorrenciaPolicial: input.ocorrenciaPolicial,
         objetivoPericia: input.objetivoPericia,
         preambulo: input.preambulo,
-        historico: input.historico,
         placaPortada: input.placaPortada,
-        especieTipo: input.especieTipo,
+        vehicleSpecies: input.vehicleSpecies,
+        vehicleType: input.vehicleType,
         vidro: input.vidro,
         outrasNumeracoes: input.outrasNumeracoes,
 
