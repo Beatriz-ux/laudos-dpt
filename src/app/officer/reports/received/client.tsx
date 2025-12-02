@@ -108,7 +108,7 @@ export function OfficerReportsReceivedClient({
           <div className="p-6 pb-3">
             <h2 className="text-lg font-semibold">Laudos Recebidos ({filteredReports.length})</h2>
             <p className="text-sm text-muted-foreground">
-              Clique em "Iniciar" para começar a preencher o laudo
+              Clique em &quot;Iniciar&quot; para começar a preencher o laudo
             </p>
           </div>
           <div className="overflow-x-auto">
