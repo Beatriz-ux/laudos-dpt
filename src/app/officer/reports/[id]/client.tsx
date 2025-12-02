@@ -339,9 +339,9 @@ export function OfficerReportDetailClient({
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -351,24 +351,24 @@ export function OfficerReportDetailClient({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
               Laudo {report.number}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {isCompleted ? "Visualizar laudo" : "Preencher dados do laudo"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(
+            className={`px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${getStatusColor(
               report.status
             )}`}
           >
             {STATUS_LABELS[report.status]}
           </span>
           <span
-            className={`px-3 py-1 rounded-full text-sm font-semibold ${getPriorityColor(
+            className={`px-3 py-1 rounded-full text-xs sm:text-sm font-semibold ${getPriorityColor(
               report.priority
             )}`}
           >
@@ -393,11 +393,11 @@ export function OfficerReportDetailClient({
       )}
 
       {/* Tabs */}
-      <div className="border-b border-border">
-        <div className="flex gap-4">
+      <div className="border-b border-border overflow-x-auto">
+        <div className="flex gap-2 sm:gap-4 min-w-max sm:min-w-0">
           <button
             onClick={() => setActiveTab("vehicle")}
-            className={`px-4 py-2 border-b-2 transition-colors ${
+            className={`px-3 sm:px-4 py-2 border-b-2 transition-colors text-sm whitespace-nowrap ${
               activeTab === "vehicle"
                 ? "border-primary text-primary font-medium"
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -407,7 +407,7 @@ export function OfficerReportDetailClient({
           </button>
           <button
             onClick={() => setActiveTab("photos")}
-            className={`px-4 py-2 border-b-2 transition-colors ${
+            className={`px-3 sm:px-4 py-2 border-b-2 transition-colors text-sm whitespace-nowrap ${
               activeTab === "photos"
                 ? "border-primary text-primary font-medium"
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -419,17 +419,17 @@ export function OfficerReportDetailClient({
             <>
               <button
                 onClick={() => setActiveTab("evidence")}
-                className={`px-4 py-2 border-b-2 transition-colors ${
+                className={`px-3 sm:px-4 py-2 border-b-2 transition-colors text-sm whitespace-nowrap ${
                   activeTab === "evidence"
                     ? "border-primary text-primary font-medium"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
-                Evidências de Adulteração
+                Evidências
               </button>
               <button
                 onClick={() => setActiveTab("original")}
-                className={`px-4 py-2 border-b-2 transition-colors ${
+                className={`px-3 sm:px-4 py-2 border-b-2 transition-colors text-sm whitespace-nowrap ${
                   activeTab === "original"
                     ? "border-primary text-primary font-medium"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -441,13 +441,13 @@ export function OfficerReportDetailClient({
           )}
           <button
             onClick={() => setActiveTab("analysis")}
-            className={`px-4 py-2 border-b-2 transition-colors ${
+            className={`px-3 sm:px-4 py-2 border-b-2 transition-colors text-sm whitespace-nowrap ${
               activeTab === "analysis"
                 ? "border-primary text-primary font-medium"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            Análise e Conclusão
+            Análise
           </button>
         </div>
       </div>
@@ -456,10 +456,10 @@ export function OfficerReportDetailClient({
       <div className="space-y-6">
         {/* Vehicle Tab */}
         {activeTab === "vehicle" && (
-          <div className="space-y-6">
-            <div className="rounded-lg border bg-card p-6 space-y-4">
-              <h3 className="text-lg font-semibold">Identificação do Veículo</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6 space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold">Identificação do Veículo</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Placa *</label>
                   <input
@@ -608,8 +608,8 @@ export function OfficerReportDetailClient({
             </div>
 
             {/* Additional Information */}
-            <div className="rounded-lg border bg-card p-6 space-y-4">
-              <h3 className="text-lg font-semibold">Informações Adicionais</h3>
+            <div className="rounded-lg border bg-card p-4 sm:p-6 space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold">Informações Adicionais</h3>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Informações dos Vidros</label>
@@ -687,9 +687,9 @@ export function OfficerReportDetailClient({
             />
 
             {PHOTO_CATEGORIES.map((cat) => (
-              <div key={cat.value} className="rounded-lg border bg-card p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{cat.label}</h3>
+              <div key={cat.value} className="rounded-lg border bg-card p-4 sm:p-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                  <h3 className="text-base sm:text-lg font-semibold">{cat.label}</h3>
                   {canEdit && (
                     <Button
                       onClick={() => {
@@ -697,11 +697,12 @@ export function OfficerReportDetailClient({
                         setCurrentPhotoSubtype(undefined);
                         fileInputRef.current?.click();
                       }}
-                      size="sm"
+                      size="default"
                       variant="outline"
+                      className="w-full sm:w-auto h-11 sm:h-10"
                     >
                       <Camera className="h-4 w-4 mr-2" />
-                      Adicionar Foto
+                      Tirar/Adicionar Foto
                     </Button>
                   )}
                 </div>
@@ -719,7 +720,7 @@ export function OfficerReportDetailClient({
                         {canEdit && (
                           <button
                             onClick={() => removePhoto(photo.id)}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-lg"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -742,7 +743,7 @@ export function OfficerReportDetailClient({
         {/* Evidence Tab */}
         {activeTab === "evidence" && formData.vehicle.isAdulterated && (
           <div className="space-y-6">
-            <div className="rounded-lg bg-red-50 border border-red-200 p-4 flex items-start gap-2">
+            <div className="rounded-lg bg-red-50 border border-red-200 p-3 sm:p-4 flex items-start gap-2">
               <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-red-700 font-medium">
@@ -755,9 +756,9 @@ export function OfficerReportDetailClient({
             </div>
 
             {EVIDENCE_TYPES.map((evidence) => (
-              <div key={evidence.value} className="rounded-lg border bg-card p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{evidence.label}</h3>
+              <div key={evidence.value} className="rounded-lg border bg-card p-4 sm:p-6 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
+                  <h3 className="text-base sm:text-lg font-semibold">{evidence.label}</h3>
                   {canEdit && (
                     <Button
                       onClick={() => {
@@ -765,11 +766,12 @@ export function OfficerReportDetailClient({
                         setCurrentPhotoSubtype(evidence.value);
                         fileInputRef.current?.click();
                       }}
-                      size="sm"
+                      size="default"
                       variant="outline"
+                      className="w-full sm:w-auto h-11 sm:h-10"
                     >
                       <Camera className="h-4 w-4 mr-2" />
-                      Adicionar Evidência
+                      Tirar/Adicionar Evidência
                     </Button>
                   )}
                 </div>
@@ -787,7 +789,7 @@ export function OfficerReportDetailClient({
                         {canEdit && (
                           <button
                             onClick={() => removePhoto(photo.id)}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity shadow-lg"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -810,7 +812,7 @@ export function OfficerReportDetailClient({
         {/* Original Data Tab */}
         {activeTab === "original" && formData.vehicle.isAdulterated && (
           <div className="space-y-6">
-            <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 flex items-start gap-2 mb-4">
+            <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 sm:p-4 flex items-start gap-2 mb-4">
               <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-blue-700 font-medium">
@@ -822,8 +824,8 @@ export function OfficerReportDetailClient({
               </div>
             </div>
 
-            <div className="rounded-lg border bg-card p-6 space-y-4">
-              <h3 className="text-lg font-semibold">Informações do Veículo Original</h3>
+            <div className="rounded-lg border bg-card p-4 sm:p-6 space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold">Informações do Veículo Original</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Placa Original</label>
@@ -969,8 +971,8 @@ export function OfficerReportDetailClient({
         {/* Analysis Tab */}
         {activeTab === "analysis" && (
           <div className="space-y-6">
-            <div className="rounded-lg border bg-card p-6 space-y-4">
-              <h3 className="text-lg font-semibold">Análise Técnica e Conclusão</h3>
+            <div className="rounded-lg border bg-card p-4 sm:p-6 space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold">Análise Técnica e Conclusão</h3>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Conclusão *</label>
@@ -1045,12 +1047,12 @@ export function OfficerReportDetailClient({
 
       {/* Action Buttons */}
       {canEdit && (
-        <div className="flex gap-3 sticky bottom-6 bg-background p-4 rounded-lg border shadow-lg">
+        <div className="flex flex-col sm:flex-row gap-3 sticky bottom-4 sm:bottom-6 bg-background p-3 sm:p-4 rounded-lg border shadow-lg">
           <Button
             onClick={handleSave}
             disabled={isSaving}
             variant="outline"
-            className="flex-1"
+            className="flex-1 h-12 sm:h-10"
           >
             <Save className="h-4 w-4 mr-2" />
             {isSaving ? "Salvando..." : "Salvar Rascunho"}
@@ -1058,7 +1060,7 @@ export function OfficerReportDetailClient({
           <Button
             onClick={() => setShowFinalizeDialog(true)}
             disabled={isSaving || !formData.analysis.conclusion || formData.analysis.isConclusive === undefined}
-            className="flex-1"
+            className="flex-1 h-12 sm:h-10"
           >
             <CheckCircle className="h-4 w-4 mr-2" />
             Finalizar Laudo
@@ -1068,18 +1070,18 @@ export function OfficerReportDetailClient({
 
       {/* Finalize Dialog */}
       {showFinalizeDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Finalizar Laudo</h3>
-            <p className="text-sm text-muted-foreground mb-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-background rounded-lg p-4 sm:p-6 max-w-md w-full">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Finalizar Laudo</h3>
+            <p className="text-sm text-muted-foreground mb-4 sm:mb-6">
               Você está prestes a finalizar este laudo. Após a finalização, não será possível fazer mais alterações.
               Confirma que deseja prosseguir?
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={() => setShowFinalizeDialog(false)}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 h-11 sm:h-10"
               >
                 Cancelar
               </Button>
@@ -1088,7 +1090,7 @@ export function OfficerReportDetailClient({
                   setShowFinalizeDialog(false);
                   handleFinalize();
                 }}
-                className="flex-1"
+                className="flex-1 h-11 sm:h-10"
               >
                 Confirmar Finalização
               </Button>
