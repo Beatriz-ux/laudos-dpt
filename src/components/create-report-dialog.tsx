@@ -99,8 +99,8 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
         objetivoPericia: formData.objetivoPericia,
         preambulo: formData.preambulo,
         placaPortada: formData.placaPortada,
-        vehicleSpecies: formData.vehicleSpecies,
-        vehicleType: formData.vehicleType,
+        vehicleSpecies: formData.vehicleSpecies as VehicleSpecies,
+        vehicleType: formData.vehicleType as VehicleType,
         vidro: formData.vidro || undefined,
         outrasNumeracoes: formData.outrasNumeracoes || undefined,
         vehicle: {

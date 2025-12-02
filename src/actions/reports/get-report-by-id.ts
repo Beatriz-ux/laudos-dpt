@@ -52,7 +52,8 @@ export async function getReportById(
       preambulo: report.preambulo ?? undefined,
       historico: report.historico ?? undefined,
       placaPortada: report.placaPortada ?? undefined,
-      especieTipo: report.especieTipo ?? undefined,
+      vehicleSpecies: report.vehicleSpecies ?? undefined,
+      vehicleType: report.vehicleType ?? undefined,
       vidro: report.vidro ?? undefined,
       outrasNumeracoes: report.outrasNumeracoes ?? undefined,
 
@@ -87,6 +88,18 @@ export async function getReportById(
       motorInfo: report.motorInfo ?? undefined,
       centralEletronicaInfo: report.centralEletronicaInfo ?? undefined,
       seriesAuxiliares: report.seriesAuxiliares ?? undefined,
+
+      // Dados Originais
+      originalPlate: report.originalPlate ?? undefined,
+      originalBrand: report.originalBrand ?? undefined,
+      originalModel: report.originalModel ?? undefined,
+      originalSpecies: report.originalSpecies ?? undefined,
+      originalType: report.originalType ?? undefined,
+      originalColor: report.originalColor ?? undefined,
+      originalChassi: report.originalChassi ?? undefined,
+      originalMotor: report.originalMotor ?? undefined,
+      originalLicensedTo: report.originalLicensedTo ?? undefined,
+      originalAnalysisDetails: report.originalAnalysisDetails ?? undefined,
 
       analysis: report.analysisIsConclusive !== null || report.analysisJustification !== null || report.analysisConclusion !== null
         ? {

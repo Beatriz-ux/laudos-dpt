@@ -114,7 +114,8 @@ export interface Report {
   preambulo?: string;
   historico?: string;
   placaPortada?: string;
-  especieTipo?: string;
+  vehicleSpecies?: VehicleSpecies;
+  vehicleType?: VehicleType;
   vidro?: string;
   outrasNumeracoes?: string;
 
@@ -130,6 +131,18 @@ export interface Report {
   motorInfo?: string;
   centralEletronicaInfo?: string;
   seriesAuxiliares?: string;
+
+  // Dados Originais (quando veículo adulterado)
+  originalPlate?: string;
+  originalBrand?: string;
+  originalModel?: string;
+  originalSpecies?: VehicleSpecies;
+  originalType?: VehicleType;
+  originalColor?: string;
+  originalChassi?: string;
+  originalMotor?: string;
+  originalLicensedTo?: string;
+  originalAnalysisDetails?: string;
 
   // Analysis
   analysis?: Analysis;
@@ -197,8 +210,8 @@ export interface UpdateReportInput {
     plate?: string;
     brand?: string;
     model?: string;
-    species?: VehicleSpecies;
-    type?: VehicleType;
+    species?: VehicleSpecies | string;
+    type?: VehicleType | string;
     color?: string;
     chassi?: string;
     motor?: string;

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { assignReport } from "@/actions/reports/assign-report";
 import { cancelReport } from "@/actions/reports/cancel-report";
+import { generateReportPDF } from "@/lib/pdf-generator";
 import type { User, Report } from "@/types";
 import { STATUS_LABELS, PRIORITY_LABELS, DEPARTMENT_LABELS, VEHICLE_SPECIES_LABELS, VEHICLE_TYPE_LABELS } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -64,10 +65,35 @@ export function AgentReportDetailClient({
   const canAssign = report.status === "PENDING" || report.status === "RECEIVED";
   const canCancel = report.status !== "COMPLETED" && report.status !== "CANCELLED";
   const canGeneratePDF = report.status === "COMPLETED";
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const handleGeneratePDF = async () => {
-    // TODO: Implement PDF generation
-    alert("Funcionalidade de geração de PDF será implementada em breve");
+    setIsGeneratingPDF(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      // Get the officer who completed the report
+      const officer = report.assignee;
+      if (!officer) {
+        setError("Não foi possível identificar o perito responsável");
+        return;
+      }
+
+      await generateReportPDF({
+        report,
+        expertName: officer.name,
+        expertBadge: officer.badge,
+      });
+
+      setSuccess("PDF gerado com sucesso!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err: any) {
+      console.error("Error generating PDF:", err);
+      setError(err.message || "Erro ao gerar PDF");
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   const handleAssign = async () => {
@@ -219,9 +245,9 @@ export function AgentReportDetailClient({
       {/* Action Buttons */}
       <div className="flex gap-3">
         {canGeneratePDF && (
-          <Button onClick={handleGeneratePDF} variant="default">
+          <Button onClick={handleGeneratePDF} variant="default" disabled={isGeneratingPDF}>
             <Download className="h-4 w-4 mr-2" />
-            Gerar PDF
+            {isGeneratingPDF ? "Gerando PDF..." : "Gerar PDF"}
           </Button>
         )}
 

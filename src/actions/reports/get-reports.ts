@@ -115,8 +115,10 @@ export async function getReports(userId?: string): Promise<ActionResponse<Report
       photos: r.photos.map((photo) => ({
         id: photo.id,
         reportId: photo.reportId,
-        part: photo.part,
-        photoUrl: photo.photoUrl,
+        category: photo.category,
+        subtype: photo.subtype ?? undefined,
+        photoData: photo.photoData,
+        description: photo.description ?? undefined,
         createdAt: photo.createdAt,
       })),
     }))
