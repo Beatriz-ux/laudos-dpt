@@ -96,15 +96,32 @@ export async function updateReport(
 
     if (input.vehicle) {
       if (input.vehicle.chassi !== undefined) updateData.vehicleChassi = input.vehicle.chassi
+      if (input.vehicle.vin !== undefined) updateData.vehicleVin = input.vehicle.vin
       if (input.vehicle.brand !== undefined) updateData.vehicleBrand = input.vehicle.brand
       if (input.vehicle.model !== undefined) updateData.vehicleModel = input.vehicle.model
       if (input.vehicle.year !== undefined) updateData.vehicleYear = input.vehicle.year
+      if (input.vehicle.category !== undefined) updateData.vehicleCategory = input.vehicle.category
       if (input.vehicle.color !== undefined) updateData.vehicleColor = input.vehicle.color
+      if (input.vehicle.serieMotor !== undefined) updateData.vehicleSerieMotor = input.vehicle.serieMotor
+      if (input.vehicle.licensedTo !== undefined) updateData.vehicleLicensedTo = input.vehicle.licensedTo
+      if (input.vehicle.technicalCondition !== undefined) updateData.vehicleTechnicalCondition = input.vehicle.technicalCondition
+      if (input.vehicle.isAdulterated !== undefined) updateData.vehicleIsAdulterated = input.vehicle.isAdulterated
+    }
+
+    if (input.info) {
+      if (input.info.glassInfo !== undefined) updateData.glassInfo = input.info.glassInfo
+      if (input.info.plateInfo !== undefined) updateData.plateInfo = input.info.plateInfo
+      if (input.info.motorInfo !== undefined) updateData.motorInfo = input.info.motorInfo
+      if (input.info.centralEletronicaInfo !== undefined) updateData.centralEletronicaInfo = input.info.centralEletronicaInfo
+      if (input.info.seriesAuxiliares !== undefined) updateData.seriesAuxiliares = input.info.seriesAuxiliares
     }
 
     if (input.analysis) {
       if (input.analysis.isConclusive !== undefined) {
         updateData.analysisIsConclusive = input.analysis.isConclusive
+      }
+      if (input.analysis.conclusion !== undefined) {
+        updateData.analysisConclusion = input.analysis.conclusion
       }
       if (input.analysis.justification !== undefined) {
         updateData.analysisJustification = input.analysis.justification
@@ -112,6 +129,10 @@ export async function updateReport(
       if (input.analysis.observations !== undefined) {
         updateData.analysisObservations = input.analysis.observations
       }
+    }
+
+    if (input.signature !== undefined) {
+      updateData.expertSignature = input.signature
     }
 
     if (input.assignedTo !== undefined) {
@@ -126,6 +147,25 @@ export async function updateReport(
       where: { id: reportId },
       data: updateData,
     })
+
+    // Processar fotos se fornecidas
+    if (input.photos && input.photos.length > 0) {
+      // Deletar fotos antigas deste laudo
+      await prisma.vehiclePhoto.deleteMany({
+        where: { reportId },
+      })
+
+      // Criar novas fotos
+      await prisma.vehiclePhoto.createMany({
+        data: input.photos.map(photo => ({
+          reportId,
+          category: photo.category,
+          subtype: photo.subtype,
+          photoData: photo.photoData,
+          description: photo.description,
+        })),
+      })
+    }
 
     // Criar log de auditoria
     await prisma.reportAuditLog.create({

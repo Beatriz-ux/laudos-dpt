@@ -86,6 +86,22 @@ model Report {
   createdBy                 String        @map("created_by")
   assignedTo                String?       @map("assigned_to")
   assignedAt                DateTime?     @map("assigned_at")
+  deadline                  DateTime?     @map("deadline") // Prazo para concluir
+
+  // Campos preenchidos pelo Agente
+  oficio                    String?       @map("oficio")
+  orgaoRequisitante         String?       @map("orgao_requisitante")
+  autoridadeRequisitante    String?       @map("autoridade_requisitante")
+  guiaOficio                String?       @map("guia_oficio")
+  dataGuiaOficio            DateTime?     @map("data_guia_oficio")
+  ocorrenciaPolicial        String?       @map("ocorrencia_policial")
+  objetivoPericia           String?       @map("objetivo_pericia") @db.Text
+  preambulo                 String?       @map("preambulo") @db.Text
+  historico                 String?       @map("historico") @db.Text
+  placaPortada              String?       @map("placa_portada")
+  especieTipo               String?       @map("especie_tipo")
+  vidro                     String?       @map("vidro")
+  outrasNumeracoes          String?       @map("outras_numeracoes") @db.Text
 
   // Localização
   locationAddress           String?       @map("location_address")
@@ -93,20 +109,35 @@ model Report {
   locationState             String?       @map("location_state")
   locationCoordinates       String?       @map("location_coordinates") // JSON string
 
-  // Dados do veículo
+  // Dados do veículo (preenchido por ambos)
   vehiclePlate              String?       @map("vehicle_plate")
   vehicleChassi             String?       @map("vehicle_chassi")
+  vehicleVin                String?       @map("vehicle_vin")
   vehicleMotor              String?       @map("vehicle_motor")
+  vehicleSerieMotor         String?       @map("vehicle_serie_motor")
   vehicleColor              String?       @map("vehicle_color")
   vehicleBrand              String?       @map("vehicle_brand")
   vehicleModel              String?       @map("vehicle_model")
   vehicleYear               Int?          @map("vehicle_year")
+  vehicleCategory           String?       @map("vehicle_category")
   vehicleIsCloned           Boolean?      @default(false) @map("vehicle_is_cloned")
+  vehicleIsAdulterated      Boolean?      @default(false) @map("vehicle_is_adulterated")
+  vehicleLicensedTo         String?       @map("vehicle_licensed_to")
+  vehicleTechnicalCondition String?       @map("vehicle_technical_condition") @db.Text
 
-  // Análise
+  // Informações adicionais do policial
+  glassInfo                 String?       @map("glass_info") @db.Text
+  plateInfo                 String?       @map("plate_info") @db.Text
+  motorInfo                 String?       @map("motor_info") @db.Text
+  centralEletronicaInfo     String?       @map("central_eletronica_info") @db.Text
+  seriesAuxiliares          String?       @map("series_auxiliares") @db.Text
+
+  // Análise e Conclusão
   analysisIsConclusive      Boolean?      @map("analysis_is_conclusive")
+  analysisConclusion        String?       @map("analysis_conclusion") @db.Text
   analysisJustification     String?       @map("analysis_justification") @db.Text
   analysisObservations      String?       @map("analysis_observations") @db.Text
+  expertSignature           String?       @map("expert_signature") @db.Text // Base64 da assinatura
 
   // Metadados
   createdAt                 DateTime      @default(now()) @map("created_at")
@@ -140,8 +171,10 @@ model ReportAuditLog {
 model VehiclePhoto {
   id        String   @id @default(cuid())
   reportId  String   @map("report_id")
-  part      String   // Placa, Chassi, Motor, etc.
-  photoUrl  String   @map("photo_url")
+  category  String   // vehicle, plate, glass, chassi, motor, tag, year_plate, central, auxiliary, evidence
+  subtype   String?  // Para evidências: chassi_adulterated, motor_adulterated, glass_adulterated, etc.
+  photoData String   @map("photo_data") @db.Text // Base64 da imagem
+  description String? @db.Text // Descrição opcional da foto
   createdAt DateTime @default(now()) @map("created_at")
 
   // Relacionamentos

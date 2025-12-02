@@ -37,14 +37,30 @@ export async function createReport(
         createdBy: currentUser.id,
         assignedTo: input.assignedTo || null,
         assignedAt: input.assignedTo ? new Date() : null,
-        locationAddress: input.location.address,
-        locationCity: input.location.city,
-        locationState: input.location.state,
-        locationCoordinates: input.location.coordinates
-          ? stringifyCoordinates(input.location.coordinates)
-          : null,
+        deadline: input.deadline ? new Date(input.deadline) : null,
+
+        // Campos do Agente
+        oficio: input.oficio,
+        orgaoRequisitante: input.orgaoRequisitante,
+        autoridadeRequisitante: input.autoridadeRequisitante,
+        guiaOficio: input.guiaOficio,
+        dataGuiaOficio: input.dataGuiaOficio ? new Date(input.dataGuiaOficio) : null,
+        ocorrenciaPolicial: input.ocorrenciaPolicial,
+        objetivoPericia: input.objetivoPericia,
+        preambulo: input.preambulo,
+        historico: input.historico,
+        placaPortada: input.placaPortada,
+        especieTipo: input.especieTipo,
+        vidro: input.vidro,
+        outrasNumeracoes: input.outrasNumeracoes,
+
+        // Dados do Veículo
         vehiclePlate: input.vehicle.plate,
-        vehicleIsCloned: input.vehicle.isCloned || false,
+        vehicleBrand: input.vehicle.brand,
+        vehicleModel: input.vehicle.model,
+        vehicleColor: input.vehicle.color,
+        vehicleMotor: input.vehicle.motor,
+        vehicleChassi: input.vehicle.chassi,
       },
       include: {
         creator: { include: { roles: true } },

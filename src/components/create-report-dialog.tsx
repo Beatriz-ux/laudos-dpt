@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, ChevronRight, ChevronLeft } from "lucide-react";
 import { createReport } from "@/actions/reports/create-report";
 import type { Priority, User } from "@/types";
 import { PRIORITY_LABELS } from "@/types";
@@ -28,51 +28,116 @@ interface CreateReportDialogProps {
   trigger?: React.ReactNode;
 }
 
+const STEPS = [
+  { id: 1, title: "Dados Gerais" },
+  { id: 2, title: "Requisição" },
+  { id: 3, title: "Informações do Veículo" },
+  { id: 4, title: "Perícia" },
+  { id: 5, title: "Atribuição" },
+];
+
 export function CreateReportDialog({ officers, trigger }: CreateReportDialogProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
+    // Etapa 1: Dados Gerais
     priority: "MEDIUM" as Priority,
-    location: {
-      address: "",
-      city: "",
-      state: "",
-    },
-    vehicle: {
-      plate: "",
-      isCloned: false,
-    },
+    deadline: "",
+    oficio: "",
+
+    // Etapa 2: Requisição
+    orgaoRequisitante: "",
+    autoridadeRequisitante: "",
+    guiaOficio: "",
+    dataGuiaOficio: "",
+    ocorrenciaPolicial: "",
+
+    // Etapa 3: Informações do Veículo
+    placaPortada: "",
+    vehicleBrand: "",
+    vehicleModel: "",
+    especieTipo: "",
+    vehicleColor: "",
+    vidro: "",
+    vehicleMotor: "",
+    vehicleChassi: "",
+    outrasNumeracoes: "",
+
+    // Etapa 4: Perícia
+    objetivoPericia: "",
+    preambulo: "",
+    historico: "",
+
+    // Etapa 5: Atribuição
     assignedTo: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (currentStep < STEPS.length) {
+      setCurrentStep(currentStep + 1);
+      return;
+    }
+
     setError("");
     setIsSubmitting(true);
 
     try {
       const result = await createReport({
         priority: formData.priority,
-        location: {
-          address: formData.location.address,
-          city: formData.location.city,
-          state: formData.location.state,
-        },
+        deadline: formData.deadline || undefined,
+        oficio: formData.oficio,
+        orgaoRequisitante: formData.orgaoRequisitante,
+        autoridadeRequisitante: formData.autoridadeRequisitante,
+        guiaOficio: formData.guiaOficio,
+        dataGuiaOficio: formData.dataGuiaOficio || undefined,
+        ocorrenciaPolicial: formData.ocorrenciaPolicial,
+        objetivoPericia: formData.objetivoPericia,
+        preambulo: formData.preambulo,
+        historico: formData.historico,
+        placaPortada: formData.placaPortada,
+        especieTipo: formData.especieTipo,
+        vidro: formData.vidro,
+        outrasNumeracoes: formData.outrasNumeracoes,
         vehicle: {
-          plate: formData.vehicle.plate.toUpperCase(),
-          isCloned: formData.vehicle.isCloned,
+          plate: formData.placaPortada.toUpperCase(),
+          brand: formData.vehicleBrand,
+          model: formData.vehicleModel,
+          color: formData.vehicleColor,
+          motor: formData.vehicleMotor,
+          chassi: formData.vehicleChassi,
         },
         assignedTo: formData.assignedTo || undefined,
       });
 
       if (result.success) {
         setIsOpen(false);
+        setCurrentStep(1);
         setFormData({
           priority: "MEDIUM",
-          location: { address: "", city: "", state: "" },
-          vehicle: { plate: "", isCloned: false },
+          deadline: "",
+          oficio: "",
+          orgaoRequisitante: "",
+          autoridadeRequisitante: "",
+          guiaOficio: "",
+          dataGuiaOficio: "",
+          ocorrenciaPolicial: "",
+          placaPortada: "",
+          vehicleBrand: "",
+          vehicleModel: "",
+          especieTipo: "",
+          vehicleColor: "",
+          vidro: "",
+          vehicleMotor: "",
+          vehicleChassi: "",
+          outrasNumeracoes: "",
+          objetivoPericia: "",
+          preambulo: "",
+          historico: "",
           assignedTo: "",
         });
         router.refresh();
@@ -88,23 +153,44 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
   };
 
   const handleInputChange = (field: string, value: any) => {
-    if (field.includes(".")) {
-      const [parent, child] = field.split(".");
-      setFormData((prev) => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent as keyof typeof prev] as any),
-          [child]: value,
-        },
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    }
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (error) setError("");
   };
 
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1:
+        return formData.priority && formData.oficio;
+      case 2:
+        return formData.orgaoRequisitante && formData.autoridadeRequisitante &&
+               formData.guiaOficio && formData.dataGuiaOficio && formData.ocorrenciaPolicial;
+      case 3:
+        return formData.placaPortada && formData.vehicleBrand && formData.vehicleModel &&
+               formData.especieTipo && formData.vehicleColor && formData.vidro &&
+               formData.vehicleMotor && formData.vehicleChassi;
+      case 4:
+        return formData.objetivoPericia && formData.preambulo && formData.historico;
+      case 5:
+        return true; // Atribuição é opcional
+      default:
+        return false;
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      setIsOpen(open);
+      if (!open) {
+        setCurrentStep(1);
+        setError("");
+      }
+    }}>
       <DialogTrigger asChild>
         {trigger || (
           <Button>
@@ -113,162 +199,430 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Criar Novo Laudo</DialogTitle>
           <DialogDescription>
-            Preencha os dados básicos do laudo
+            Etapa {currentStep} de {STEPS.length}: {STEPS[currentStep - 1].title}
           </DialogDescription>
         </DialogHeader>
 
+        {/* Progress Steps */}
+        <div className="flex items-center justify-between mb-6">
+          {STEPS.map((step, index) => (
+            <div key={step.id} className="flex items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  step.id === currentStep
+                    ? "bg-primary text-primary-foreground"
+                    : step.id < currentStep
+                    ? "bg-primary/20 text-primary"
+                    : "bg-muted text-muted-foreground"
+                }`}
+              >
+                {step.id}
+              </div>
+              {index < STEPS.length - 1 && (
+                <div className={`w-12 h-0.5 mx-2 ${step.id < currentStep ? "bg-primary" : "bg-muted"}`} />
+              )}
+            </div>
+          ))}
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Prioridade */}
-          <div className="space-y-2">
-            <label htmlFor="priority" className="text-sm font-medium">
-              Prioridade *
-            </label>
-            <Select
-              value={formData.priority}
-              onValueChange={(value) => handleInputChange("priority", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione a prioridade" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="HIGH">Alta</SelectItem>
-                <SelectItem value="MEDIUM">Média</SelectItem>
-                <SelectItem value="LOW">Baixa</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {/* Etapa 1: Dados Gerais */}
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="oficio" className="text-sm font-medium">
+                  Ofício *
+                </label>
+                <input
+                  id="oficio"
+                  type="text"
+                  value={formData.oficio}
+                  onChange={(e) => handleInputChange("oficio", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Número do ofício"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
 
-          {/* Endereço */}
-          <div className="space-y-2">
-            <label htmlFor="address" className="text-sm font-medium">
-              Endereço Completo *
-            </label>
-            <input
-              id="address"
-              type="text"
-              value={formData.location.address}
-              onChange={(e) =>
-                handleInputChange("location.address", e.target.value)
-              }
-              required
-              disabled={isSubmitting}
-              placeholder="Rua, número, bairro"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="priority" className="text-sm font-medium">
+                    Prioridade *
+                  </label>
+                  <Select
+                    value={formData.priority}
+                    onValueChange={(value) => handleInputChange("priority", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a prioridade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="HIGH">Alta</SelectItem>
+                      <SelectItem value="MEDIUM">Média</SelectItem>
+                      <SelectItem value="LOW">Baixa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          {/* Cidade e Estado */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label htmlFor="city" className="text-sm font-medium">
-                Cidade *
-              </label>
-              <input
-                id="city"
-                type="text"
-                value={formData.location.city}
-                onChange={(e) =>
-                  handleInputChange("location.city", e.target.value)
-                }
-                required
-                disabled={isSubmitting}
-                placeholder="Salvador"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              />
+                <div className="space-y-2">
+                  <label htmlFor="deadline" className="text-sm font-medium">
+                    Prazo para Concluir *
+                  </label>
+                  <input
+                    id="deadline"
+                    type="date"
+                    value={formData.deadline}
+                    onChange={(e) => handleInputChange("deadline", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
             </div>
+          )}
 
-            <div className="space-y-2">
-              <label htmlFor="state" className="text-sm font-medium">
-                Estado (UF) *
-              </label>
-              <input
-                id="state"
-                type="text"
-                value={formData.location.state}
-                onChange={(e) =>
-                  handleInputChange("location.state", e.target.value)
-                }
-                required
-                disabled={isSubmitting}
-                placeholder="BA"
-                maxLength={2}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-              />
+          {/* Etapa 2: Requisição */}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="orgaoRequisitante" className="text-sm font-medium">
+                  Órgão Requisitante *
+                </label>
+                <input
+                  id="orgaoRequisitante"
+                  type="text"
+                  value={formData.orgaoRequisitante}
+                  onChange={(e) => handleInputChange("orgaoRequisitante", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Ex: Delegacia de Polícia Civil"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="autoridadeRequisitante" className="text-sm font-medium">
+                  Autoridade Requisitante *
+                </label>
+                <input
+                  id="autoridadeRequisitante"
+                  type="text"
+                  value={formData.autoridadeRequisitante}
+                  onChange={(e) => handleInputChange("autoridadeRequisitante", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Nome da autoridade"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="guiaOficio" className="text-sm font-medium">
+                    Guia/Ofício *
+                  </label>
+                  <input
+                    id="guiaOficio"
+                    type="text"
+                    value={formData.guiaOficio}
+                    onChange={(e) => handleInputChange("guiaOficio", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Número da guia ou ofício"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="dataGuiaOficio" className="text-sm font-medium">
+                    Data Guia/Ofício *
+                  </label>
+                  <input
+                    id="dataGuiaOficio"
+                    type="date"
+                    value={formData.dataGuiaOficio}
+                    onChange={(e) => handleInputChange("dataGuiaOficio", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="ocorrenciaPolicial" className="text-sm font-medium">
+                  Ocorrência Policial *
+                </label>
+                <input
+                  id="ocorrenciaPolicial"
+                  type="text"
+                  value={formData.ocorrenciaPolicial}
+                  onChange={(e) => handleInputChange("ocorrenciaPolicial", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Número da ocorrência policial"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Placa */}
-          <div className="space-y-2">
-            <label htmlFor="plate" className="text-sm font-medium">
-              Placa do Veículo *
-            </label>
-            <input
-              id="plate"
-              type="text"
-              value={formData.vehicle.plate}
-              onChange={(e) =>
-                handleInputChange(
-                  "vehicle.plate",
-                  e.target.value.toUpperCase()
-                )
-              }
-              required
-              disabled={isSubmitting}
-              placeholder="ABC1234"
-              maxLength={7}
-              pattern="[A-Z]{3}[0-9][A-Z0-9][0-9]{2}"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-            />
-            <p className="text-xs text-muted-foreground">
-              Formato: ABC1234 ou ABC1D23 (Mercosul)
-            </p>
-          </div>
+          {/* Etapa 3: Informações do Veículo */}
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="placaPortada" className="text-sm font-medium">
+                    Placa Portada *
+                  </label>
+                  <input
+                    id="placaPortada"
+                    type="text"
+                    value={formData.placaPortada}
+                    onChange={(e) => handleInputChange("placaPortada", e.target.value.toUpperCase())}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="ABC1234"
+                    maxLength={7}
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
 
-          {/* Veículo Clonado */}
-          <div className="flex items-center space-x-2">
-            <input
-              id="isCloned"
-              type="checkbox"
-              checked={formData.vehicle.isCloned}
-              onChange={(e) =>
-                handleInputChange("vehicle.isCloned", e.target.checked)
-              }
-              disabled={isSubmitting}
-              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-ring"
-            />
-            <label htmlFor="isCloned" className="text-sm font-medium">
-              Veículo com suspeita de clonagem
-            </label>
-          </div>
+                <div className="space-y-2">
+                  <label htmlFor="especieTipo" className="text-sm font-medium">
+                    Espécie/Tipo *
+                  </label>
+                  <input
+                    id="especieTipo"
+                    type="text"
+                    value={formData.especieTipo}
+                    onChange={(e) => handleInputChange("especieTipo", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Ex: Automóvel, Caminhonete"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
 
-          {/* Atribuir a Policial (Opcional) */}
-          <div className="space-y-2">
-            <label htmlFor="assignedTo" className="text-sm font-medium">
-              Atribuir a Policial (Opcional)
-            </label>
-            <Select
-              value={formData.assignedTo || undefined}
-              onValueChange={(value) => handleInputChange("assignedTo", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um policial (opcional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {officers.map((officer) => (
-                  <SelectItem key={officer.id} value={officer.id}>
-                    {officer.name} - {officer.badge}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Você pode atribuir o laudo a um policial depois
-            </p>
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="vehicleBrand" className="text-sm font-medium">
+                    Marca *
+                  </label>
+                  <input
+                    id="vehicleBrand"
+                    type="text"
+                    value={formData.vehicleBrand}
+                    onChange={(e) => handleInputChange("vehicleBrand", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Ex: Toyota, Honda"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="vehicleModel" className="text-sm font-medium">
+                    Modelo *
+                  </label>
+                  <input
+                    id="vehicleModel"
+                    type="text"
+                    value={formData.vehicleModel}
+                    onChange={(e) => handleInputChange("vehicleModel", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Ex: Corolla, Civic"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="vehicleColor" className="text-sm font-medium">
+                    Cor *
+                  </label>
+                  <input
+                    id="vehicleColor"
+                    type="text"
+                    value={formData.vehicleColor}
+                    onChange={(e) => handleInputChange("vehicleColor", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Ex: Preto, Branco"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="vidro" className="text-sm font-medium">
+                    Vidro *
+                  </label>
+                  <input
+                    id="vidro"
+                    type="text"
+                    value={formData.vidro}
+                    onChange={(e) => handleInputChange("vidro", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Informações do vidro"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="vehicleMotor" className="text-sm font-medium">
+                    Numeração do Motor *
+                  </label>
+                  <input
+                    id="vehicleMotor"
+                    type="text"
+                    value={formData.vehicleMotor}
+                    onChange={(e) => handleInputChange("vehicleMotor", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Número do motor"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label htmlFor="vehicleChassi" className="text-sm font-medium">
+                    CHASSI *
+                  </label>
+                  <input
+                    id="vehicleChassi"
+                    type="text"
+                    value={formData.vehicleChassi}
+                    onChange={(e) => handleInputChange("vehicleChassi", e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Número do chassi"
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="outrasNumeracoes" className="text-sm font-medium">
+                  Outras Numerações *
+                </label>
+                <textarea
+                  id="outrasNumeracoes"
+                  value={formData.outrasNumeracoes}
+                  onChange={(e) => handleInputChange("outrasNumeracoes", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Outras numerações relevantes"
+                  rows={3}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Etapa 4: Perícia */}
+          {currentStep === 4 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="objetivoPericia" className="text-sm font-medium">
+                  Objetivo da Perícia *
+                </label>
+                <textarea
+                  id="objetivoPericia"
+                  value={formData.objetivoPericia}
+                  onChange={(e) => handleInputChange("objetivoPericia", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Descreva o objetivo da perícia"
+                  rows={3}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="preambulo" className="text-sm font-medium">
+                  Preâmbulo *
+                </label>
+                <textarea
+                  id="preambulo"
+                  value={formData.preambulo}
+                  onChange={(e) => handleInputChange("preambulo", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Texto do preâmbulo"
+                  rows={4}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="historico" className="text-sm font-medium">
+                  Histórico *
+                </label>
+                <textarea
+                  id="historico"
+                  value={formData.historico}
+                  onChange={(e) => handleInputChange("historico", e.target.value)}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Histórico do caso"
+                  rows={4}
+                  className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Etapa 5: Atribuição */}
+          {currentStep === 5 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="assignedTo" className="text-sm font-medium">
+                  Atribuir a Policial (Opcional)
+                </label>
+                <Select
+                  value={formData.assignedTo || undefined}
+                  onValueChange={(value) => handleInputChange("assignedTo", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um policial (opcional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {officers.map((officer) => (
+                      <SelectItem key={officer.id} value={officer.id}>
+                        {officer.name} - {officer.badge}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Você pode atribuir o laudo a um policial depois
+                </p>
+              </div>
+
+              <div className="rounded-lg bg-muted p-4">
+                <h4 className="font-medium mb-2">Resumo do Laudo</h4>
+                <div className="space-y-1 text-sm">
+                  <p><strong>Ofício:</strong> {formData.oficio}</p>
+                  <p><strong>Prioridade:</strong> {PRIORITY_LABELS[formData.priority]}</p>
+                  <p><strong>Órgão Requisitante:</strong> {formData.orgaoRequisitante}</p>
+                  <p><strong>Placa:</strong> {formData.placaPortada}</p>
+                  <p><strong>Veículo:</strong> {formData.vehicleBrand} {formData.vehicleModel}</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Error Alert */}
           {error && (
@@ -277,19 +631,43 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
             </div>
           )}
 
-          {/* Buttons */}
+          {/* Navigation Buttons */}
           <div className="flex gap-3 pt-4">
+            {currentStep > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={isSubmitting}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Anterior
+              </Button>
+            )}
+
+            <div className="flex-1" />
+
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsOpen(false)}
               disabled={isSubmitting}
-              className="flex-1"
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="flex-1">
-              {isSubmitting ? "Criando..." : "Criar Laudo"}
+
+            <Button
+              type="submit"
+              disabled={!isStepValid() || isSubmitting}
+            >
+              {currentStep === STEPS.length ? (
+                isSubmitting ? "Criando..." : "Criar Laudo"
+              ) : (
+                <>
+                  Próximo
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </>
+              )}
             </Button>
           </div>
         </form>

@@ -52,16 +52,23 @@ export interface Location {
 export interface VehicleData {
   plate?: string;
   chassi?: string;
+  vin?: string;
   motor?: string;
+  serieMotor?: string;
   color?: string;
   brand?: string;
   model?: string;
   year?: number;
+  category?: string;
   isCloned?: boolean;
+  isAdulterated?: boolean;
+  licensedTo?: string;
+  technicalCondition?: string;
 }
 
 export interface Analysis {
   isConclusive?: boolean;
+  conclusion?: string;
   justification?: string;
   observations?: string;
 }
@@ -69,8 +76,10 @@ export interface Analysis {
 export interface VehiclePhoto {
   id: string;
   reportId: string;
-  part: string;
-  photoUrl: string;
+  category: string;
+  subtype?: string;
+  photoData: string; // Base64
+  description?: string;
   createdAt: Date;
 }
 
@@ -92,6 +101,22 @@ export interface Report {
   createdBy: string;
   assignedTo?: string | null;
   assignedAt?: Date | null;
+  deadline?: Date | null;
+
+  // Campos do Agente
+  oficio?: string;
+  orgaoRequisitante?: string;
+  autoridadeRequisitante?: string;
+  guiaOficio?: string;
+  dataGuiaOficio?: Date | null;
+  ocorrenciaPolicial?: string;
+  objetivoPericia?: string;
+  preambulo?: string;
+  historico?: string;
+  placaPortada?: string;
+  especieTipo?: string;
+  vidro?: string;
+  outrasNumeracoes?: string;
 
   // Location
   location?: Location;
@@ -99,8 +124,16 @@ export interface Report {
   // Vehicle
   vehicle?: VehicleData;
 
+  // Informações Adicionais do Policial
+  glassInfo?: string;
+  plateInfo?: string;
+  motorInfo?: string;
+  centralEletronicaInfo?: string;
+  seriesAuxiliares?: string;
+
   // Analysis
   analysis?: Analysis;
+  expertSignature?: string;
 
   // Metadata
   createdAt: Date;
@@ -119,19 +152,32 @@ export interface Report {
 
 export interface CreateReportInput {
   priority: Priority;
-  location: {
-    address: string;
-    city: string;
-    state: string;
-    coordinates?: {
-      lat: number;
-      lng: number;
-    };
-  };
+  deadline?: string;
+
+  // Campos do Agente
+  oficio: string;
+  orgaoRequisitante: string;
+  autoridadeRequisitante: string;
+  guiaOficio: string;
+  dataGuiaOficio?: string;
+  ocorrenciaPolicial: string;
+  objetivoPericia: string;
+  preambulo: string;
+  historico: string;
+  placaPortada: string;
+  especieTipo: string;
+  vidro: string;
+  outrasNumeracoes: string;
+
   vehicle: {
     plate: string;
-    isCloned?: boolean;
+    brand: string;
+    model: string;
+    color: string;
+    motor: string;
+    chassi: string;
   };
+
   assignedTo?: string;
 }
 
@@ -140,8 +186,23 @@ export interface UpdateReportInput {
   priority?: Priority;
   location?: Partial<Location>;
   vehicle?: Partial<VehicleData>;
+  info?: {
+    glassInfo?: string;
+    plateInfo?: string;
+    motorInfo?: string;
+    centralEletronicaInfo?: string;
+    seriesAuxiliares?: string;
+  };
   analysis?: Partial<Analysis>;
+  signature?: string;
   assignedTo?: string | null;
+  photos?: Array<{
+    id?: string;
+    category: string;
+    subtype?: string;
+    photoData: string;
+    description?: string;
+  }>;
 }
 
 export interface CreateOfficerInput {

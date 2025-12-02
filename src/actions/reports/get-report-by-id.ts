@@ -15,6 +15,7 @@ export async function getReportById(
       include: {
         creator: { include: { roles: true } },
         assignee: { include: { roles: true } },
+        photos: true,
       },
     })
 
@@ -36,8 +37,25 @@ export async function getReportById(
       createdBy: report.createdBy,
       assignedTo: report.assignedTo,
       assignedAt: report.assignedAt,
+      deadline: report.deadline,
       createdAt: report.createdAt,
       updatedAt: report.updatedAt,
+
+      // Campos do Agente
+      oficio: report.oficio ?? undefined,
+      orgaoRequisitante: report.orgaoRequisitante ?? undefined,
+      autoridadeRequisitante: report.autoridadeRequisitante ?? undefined,
+      guiaOficio: report.guiaOficio ?? undefined,
+      dataGuiaOficio: report.dataGuiaOficio,
+      ocorrenciaPolicial: report.ocorrenciaPolicial ?? undefined,
+      objetivoPericia: report.objetivoPericia ?? undefined,
+      preambulo: report.preambulo ?? undefined,
+      historico: report.historico ?? undefined,
+      placaPortada: report.placaPortada ?? undefined,
+      especieTipo: report.especieTipo ?? undefined,
+      vidro: report.vidro ?? undefined,
+      outrasNumeracoes: report.outrasNumeracoes ?? undefined,
+
       location: {
         address: report.locationAddress ?? undefined,
         city: report.locationCity ?? undefined,
@@ -49,19 +67,38 @@ export async function getReportById(
       vehicle: {
         plate: report.vehiclePlate ?? undefined,
         chassi: report.vehicleChassi ?? undefined,
+        vin: report.vehicleVin ?? undefined,
+        motor: report.vehicleMotor ?? undefined,
+        serieMotor: report.vehicleSerieMotor ?? undefined,
         brand: report.vehicleBrand ?? undefined,
         model: report.vehicleModel ?? undefined,
         year: report.vehicleYear ?? undefined,
+        category: report.vehicleCategory ?? undefined,
         color: report.vehicleColor ?? undefined,
         isCloned: report.vehicleIsCloned ?? undefined,
+        isAdulterated: report.vehicleIsAdulterated ?? undefined,
+        licensedTo: report.vehicleLicensedTo ?? undefined,
+        technicalCondition: report.vehicleTechnicalCondition ?? undefined,
       },
-      analysis: report.analysisIsConclusive !== null || report.analysisJustification !== null
+
+      // Informações Adicionais do Policial
+      glassInfo: report.glassInfo ?? undefined,
+      plateInfo: report.plateInfo ?? undefined,
+      motorInfo: report.motorInfo ?? undefined,
+      centralEletronicaInfo: report.centralEletronicaInfo ?? undefined,
+      seriesAuxiliares: report.seriesAuxiliares ?? undefined,
+
+      analysis: report.analysisIsConclusive !== null || report.analysisJustification !== null || report.analysisConclusion !== null
         ? {
             isConclusive: report.analysisIsConclusive ?? undefined,
+            conclusion: report.analysisConclusion ?? undefined,
             justification: report.analysisJustification ?? undefined,
             observations: report.analysisObservations ?? undefined,
           }
         : undefined,
+
+      expertSignature: report.expertSignature ?? undefined,
+
       creator: report.creator
         ? {
             id: report.creator.id,
@@ -94,6 +131,15 @@ export async function getReportById(
             updatedAt: report.assignee.updatedAt,
           }
         : undefined,
+      photos: report.photos?.map(photo => ({
+        id: photo.id,
+        reportId: photo.reportId,
+        category: photo.category,
+        subtype: photo.subtype ?? undefined,
+        photoData: photo.photoData,
+        description: photo.description ?? undefined,
+        createdAt: photo.createdAt,
+      })),
     }
 
     return { success: true, data: mappedReport }
