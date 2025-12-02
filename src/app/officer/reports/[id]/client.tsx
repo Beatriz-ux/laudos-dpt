@@ -14,7 +14,7 @@ import {
 import { updateReport } from "@/actions/reports/update-report";
 import { updateReportStatus } from "@/actions/reports/update-report";
 import type { User, Report } from "@/types";
-import { STATUS_LABELS, PRIORITY_LABELS, DEPARTMENT_LABELS } from "@/types";
+import { STATUS_LABELS, PRIORITY_LABELS, DEPARTMENT_LABELS, VEHICLE_SPECIES_LABELS, VEHICLE_TYPE_LABELS } from "@/types";
 import { Button } from "@/components/ui/button";
 
 interface OfficerReportDetailClientProps {
@@ -62,7 +62,15 @@ export function OfficerReportDetailClient({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [photos, setPhotos] = useState<PhotoUpload[]>([]);
+  const [photos, setPhotos] = useState<PhotoUpload[]>(
+    report.photos?.map(photo => ({
+      id: photo.id,
+      category: photo.category,
+      subtype: photo.subtype,
+      photoData: photo.photoData,
+      description: photo.description,
+    })) || []
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [currentPhotoCategory, setCurrentPhotoCategory] = useState("");
   const [currentPhotoSubtype, setCurrentPhotoSubtype] = useState<string | undefined>(undefined);
@@ -871,26 +879,36 @@ export function OfficerReportDetailClient({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Espécie Original</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.original.species}
                     onChange={(e) => handleInputChange("original", "species", e.target.value)}
                     disabled={!canEdit || isSaving}
-                    placeholder="Espécie do veículo original"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Selecione a espécie</option>
+                    {Object.entries(VEHICLE_SPECIES_LABELS).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Tipo Original</label>
-                  <input
-                    type="text"
+                  <select
                     value={formData.original.type}
                     onChange={(e) => handleInputChange("original", "type", e.target.value)}
                     disabled={!canEdit || isSaving}
-                    placeholder="Tipo do veículo original"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                  />
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <option value="">Selecione o tipo</option>
+                    {Object.entries(VEHICLE_TYPE_LABELS).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

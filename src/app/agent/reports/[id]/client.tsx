@@ -14,11 +14,16 @@ import {
   UserCheck,
   ArrowLeft,
   Clock,
+  Building,
+  FileCheck,
+  Info,
+  Image as ImageIcon,
+  Download,
 } from "lucide-react";
 import { assignReport } from "@/actions/reports/assign-report";
 import { cancelReport } from "@/actions/reports/cancel-report";
 import type { User, Report } from "@/types";
-import { STATUS_LABELS, PRIORITY_LABELS, DEPARTMENT_LABELS } from "@/types";
+import { STATUS_LABELS, PRIORITY_LABELS, DEPARTMENT_LABELS, VEHICLE_SPECIES_LABELS, VEHICLE_TYPE_LABELS } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -58,6 +63,12 @@ export function AgentReportDetailClient({
 
   const canAssign = report.status === "PENDING" || report.status === "RECEIVED";
   const canCancel = report.status !== "COMPLETED" && report.status !== "CANCELLED";
+  const canGeneratePDF = report.status === "COMPLETED";
+
+  const handleGeneratePDF = async () => {
+    // TODO: Implement PDF generation
+    alert("Funcionalidade de geração de PDF será implementada em breve");
+  };
 
   const handleAssign = async () => {
     if (!selectedOfficer) {
@@ -207,6 +218,13 @@ export function AgentReportDetailClient({
 
       {/* Action Buttons */}
       <div className="flex gap-3">
+        {canGeneratePDF && (
+          <Button onClick={handleGeneratePDF} variant="default">
+            <Download className="h-4 w-4 mr-2" />
+            Gerar PDF
+          </Button>
+        )}
+
         {canAssign && (
           <Dialog
             open={isAssignDialogOpen}
@@ -348,6 +366,60 @@ export function AgentReportDetailClient({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* Requisition Information */}
+          <div className="rounded-lg border bg-card">
+            <div className="p-6 border-b">
+              <div className="flex items-center gap-3">
+                <Building className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">Informações da Requisição</h2>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Ofício</p>
+                  <p className="text-sm">{report.oficio || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Guia de Ofício</p>
+                  <p className="text-sm">{report.guiaOficio || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Órgão Requisitante</p>
+                  <p className="text-sm">{report.orgaoRequisitante || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Autoridade Requisitante</p>
+                  <p className="text-sm">{report.autoridadeRequisitante || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Data da Guia</p>
+                  <p className="text-sm">
+                    {report.dataGuiaOficio
+                      ? new Date(report.dataGuiaOficio).toLocaleDateString("pt-BR")
+                      : "-"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Ocorrência Policial</p>
+                  <p className="text-sm">{report.ocorrenciaPolicial || "-"}</p>
+                </div>
+              </div>
+              {report.objetivoPericia && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Objetivo da Perícia</p>
+                  <p className="text-sm whitespace-pre-wrap">{report.objetivoPericia}</p>
+                </div>
+              )}
+              {report.preambulo && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Preâmbulo</p>
+                  <p className="text-sm whitespace-pre-wrap">{report.preambulo}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Vehicle Information */}
           <div className="rounded-lg border bg-card">
             <div className="p-6 border-b">
@@ -359,101 +431,259 @@ export function AgentReportDetailClient({
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Placa
-                  </p>
-                  <p className="text-sm font-mono font-bold">
-                    {report.vehicle?.plate || "-"}
+                  <p className="text-sm font-medium text-muted-foreground">Placa</p>
+                  <p className="text-sm font-mono font-bold">{report.vehicle?.plate || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Placa Portada</p>
+                  <p className="text-sm font-mono">{report.placaPortada || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Espécie</p>
+                  <p className="text-sm">
+                    {report.vehicleSpecies ? VEHICLE_SPECIES_LABELS[report.vehicleSpecies] : "-"}
                   </p>
                 </div>
-
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Chassi
-                  </p>
-                  <p className="text-sm font-mono">
-                    {report.vehicle?.chassi || "-"}
+                  <p className="text-sm font-medium text-muted-foreground">Tipo</p>
+                  <p className="text-sm">
+                    {report.vehicleType ? VEHICLE_TYPE_LABELS[report.vehicleType] : "-"}
                   </p>
                 </div>
-
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Marca
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Chassi</p>
+                  <p className="text-sm font-mono">{report.vehicle?.chassi || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">VIN</p>
+                  <p className="text-sm font-mono">{report.vehicle?.vin || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Marca</p>
                   <p className="text-sm">{report.vehicle?.brand || "-"}</p>
                 </div>
-
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Modelo
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Modelo</p>
                   <p className="text-sm">{report.vehicle?.model || "-"}</p>
                 </div>
-
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Ano
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Ano</p>
                   <p className="text-sm">{report.vehicle?.year || "-"}</p>
                 </div>
-
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Cor
-                  </p>
+                  <p className="text-sm font-medium text-muted-foreground">Cor</p>
                   <p className="text-sm">{report.vehicle?.color || "-"}</p>
                 </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Categoria</p>
+                  <p className="text-sm">{report.vehicle?.category || "-"}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Licenciado em Nome de</p>
+                  <p className="text-sm">{report.vehicle?.licensedTo || "-"}</p>
+                </div>
               </div>
-
-              {report.vehicle?.isCloned && (
+              {report.vidro && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Vidro</p>
+                  <p className="text-sm">{report.vidro}</p>
+                </div>
+              )}
+              {report.outrasNumeracoes && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Outras Numerações</p>
+                  <p className="text-sm whitespace-pre-wrap">{report.outrasNumeracoes}</p>
+                </div>
+              )}
+              {report.vehicle?.technicalCondition && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">Condição Técnica</p>
+                  <p className="text-sm whitespace-pre-wrap">{report.vehicle.technicalCondition}</p>
+                </div>
+              )}
+              {report.vehicle?.isAdulterated && (
                 <div className="rounded-lg bg-red-50 border border-red-200 p-3 flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-red-700">
-                    <strong>Atenção:</strong> Veículo com suspeita de clonagem
+                    <strong>Atenção:</strong> Veículo com adulterações detectadas
                   </p>
                 </div>
               )}
             </div>
           </div>
 
+          {/* Technical Information */}
+          {(report.glassInfo || report.plateInfo || report.motorInfo || report.centralEletronicaInfo || report.seriesAuxiliares) && (
+            <div className="rounded-lg border bg-card">
+              <div className="p-6 border-b">
+                <div className="flex items-center gap-3">
+                  <Info className="h-5 w-5 text-primary" />
+                  <h2 className="text-lg font-semibold">Informações Técnicas</h2>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                {report.glassInfo && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Informações dos Vidros</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.glassInfo}</p>
+                  </div>
+                )}
+                {report.plateInfo && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Informações da Placa</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.plateInfo}</p>
+                  </div>
+                )}
+                {report.motorInfo && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Informações do Motor</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.motorInfo}</p>
+                  </div>
+                )}
+                {report.centralEletronicaInfo && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Informações da Central Eletrônica</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.centralEletronicaInfo}</p>
+                  </div>
+                )}
+                {report.seriesAuxiliares && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Séries Auxiliares</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.seriesAuxiliares}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Original Vehicle Data */}
+          {report.vehicle?.isAdulterated && (report.originalPlate || report.originalBrand || report.originalModel) && (
+            <div className="rounded-lg border bg-card border-blue-200">
+              <div className="p-6 border-b bg-blue-50">
+                <div className="flex items-center gap-3">
+                  <FileCheck className="h-5 w-5 text-blue-600" />
+                  <h2 className="text-lg font-semibold text-blue-900">Dados do Veículo Original</h2>
+                </div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Placa Original</p>
+                    <p className="text-sm font-mono font-bold">{report.originalPlate || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Licenciado em Nome de</p>
+                    <p className="text-sm">{report.originalLicensedTo || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Marca Original</p>
+                    <p className="text-sm">{report.originalBrand || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Modelo Original</p>
+                    <p className="text-sm">{report.originalModel || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Espécie Original</p>
+                    <p className="text-sm">
+                      {report.originalSpecies ? VEHICLE_SPECIES_LABELS[report.originalSpecies] : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Tipo Original</p>
+                    <p className="text-sm">
+                      {report.originalType ? VEHICLE_TYPE_LABELS[report.originalType] : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Cor Original</p>
+                    <p className="text-sm">{report.originalColor || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Chassi Original</p>
+                    <p className="text-sm font-mono">{report.originalChassi || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Motor Original</p>
+                    <p className="text-sm font-mono">{report.originalMotor || "-"}</p>
+                  </div>
+                </div>
+                {report.originalAnalysisDetails && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Detalhes da Análise</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.originalAnalysisDetails}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Photos */}
+          {report.photos && report.photos.length > 0 && (
+            <div className="rounded-lg border bg-card">
+              <div className="p-6 border-b">
+                <div className="flex items-center gap-3">
+                  <ImageIcon className="h-5 w-5 text-primary" />
+                  <h2 className="text-lg font-semibold">Fotos ({report.photos.length})</h2>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {report.photos.map((photo) => (
+                    <div key={photo.id} className="space-y-2">
+                      <img
+                        src={photo.photoData}
+                        alt={photo.category}
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                      <p className="text-xs text-muted-foreground text-center">
+                        {photo.category}
+                        {photo.subtype && ` - ${photo.subtype}`}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Analysis */}
-          {report.analysis && (
+          {(report.analysis?.conclusion || report.analysis?.justification || report.analysis?.observations) && (
             <div className="rounded-lg border bg-card">
               <div className="p-6 border-b">
                 <div className="flex items-center gap-3">
                   <FileText className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-semibold">Análise Técnica</h2>
+                  <h2 className="text-lg font-semibold">Análise e Conclusão</h2>
                 </div>
               </div>
               <div className="p-6 space-y-4">
-                {report.analysis.justification && (
+                {report.analysis?.conclusion && (
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Justificativa
-                    </p>
-                    <p className="text-sm whitespace-pre-wrap">
-                      {report.analysis.justification}
-                    </p>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Conclusão</p>
+                    <p className="text-sm whitespace-pre-wrap font-medium">{report.analysis.conclusion}</p>
                   </div>
                 )}
 
-                {report.analysis.observations && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-2">
-                      Observações
-                    </p>
-                    <p className="text-sm whitespace-pre-wrap">
-                      {report.analysis.observations}
-                    </p>
-                  </div>
-                )}
-
-                {report.analysis.isConclusive !== undefined && (
+                {report.analysis?.isConclusive !== undefined && (
                   <div className="rounded-lg bg-muted p-3">
                     <p className="text-sm">
                       <strong>Análise Conclusiva:</strong>{" "}
                       {report.analysis.isConclusive ? "Sim" : "Não"}
                     </p>
+                  </div>
+                )}
+
+                {report.analysis?.justification && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Justificativa</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.analysis.justification}</p>
+                  </div>
+                )}
+
+                {report.analysis?.observations && (
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground mb-2">Observações</p>
+                    <p className="text-sm whitespace-pre-wrap">{report.analysis.observations}</p>
                   </div>
                 )}
               </div>

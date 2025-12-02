@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, ChevronRight, ChevronLeft } from "lucide-react";
 import { createReport } from "@/actions/reports/create-report";
-import type { Priority, User } from "@/types";
-import { PRIORITY_LABELS, VehicleSpecies, VehicleType } from "@/types";
+import type { Priority, User, VehicleSpecies, VehicleType } from "@/types";
+import { PRIORITY_LABELS, VEHICLE_SPECIES_LABELS, VEHICLE_TYPE_LABELS } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -413,9 +413,9 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
                       <SelectValue placeholder="Selecione a espécie" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(VehicleSpecies).map(([key, value]) => (
-                        <SelectItem key={key} value={value}>
-                          {value}
+                      {Object.entries(VEHICLE_SPECIES_LABELS).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>
+                          {label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -434,9 +434,9 @@ export function CreateReportDialog({ officers, trigger }: CreateReportDialogProp
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.entries(VehicleType).map(([key, value]) => (
-                        <SelectItem key={key} value={value}>
-                          {value}
+                      {Object.entries(VEHICLE_TYPE_LABELS).map(([key, label]) => (
+                        <SelectItem key={key} value={key}>
+                          {label}
                         </SelectItem>
                       ))}
                     </SelectContent>

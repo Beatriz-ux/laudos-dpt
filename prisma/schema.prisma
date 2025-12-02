@@ -39,6 +39,47 @@ enum Priority {
   LOW
 }
 
+enum VehicleSpecies {
+  PASSAGEIRO
+  CARGA
+  MISTO
+  COMPETICAO
+  COLECAO
+  TRACAO
+  ESPECIAL
+  LOCOMOCAO
+  ENSINO
+  AUTORIDADE
+  VISITANTE
+}
+
+enum VehicleType {
+  AUTOMOVEL
+  CAMIONETA
+  CAMIONETA_MISTA
+  CAMINHAO
+  CAMINHAO_TRATOR
+  UTILITARIO
+  MICROONIBUS
+  ONIBUS
+  REBOQUE
+  SEMI_REBOQUE
+  MOTOCICLETA
+  MOTONETA
+  CICLOMOTOR
+  TRICICLO
+  QUADRICICLO
+  BICICLETA_MOTORIZADA
+  ESPECIAL
+  SIDE_CAR
+  CHASSI_PLATAFORMA
+  TRATOR_RODAS
+  TRATOR_ESTEIRAS
+  TRATOR_MISTO
+  MAQUINA_TERRAPLANAGEM
+  MAQUINA_AGRICOLA
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -99,8 +140,8 @@ model Report {
   preambulo                 String?       @map("preambulo") @db.Text
   historico                 String?       @map("historico") @db.Text
   placaPortada              String?       @map("placa_portada")
-  vehicleSpecies            String?       @map("vehicle_species")
-  vehicleType               String?       @map("vehicle_type")
+  vehicleSpecies            VehicleSpecies? @map("vehicle_species")
+  vehicleType               VehicleType?    @map("vehicle_type")
   vidro                     String?       @map("vidro")
   outrasNumeracoes          String?       @map("outras_numeracoes") @db.Text
 
@@ -137,8 +178,8 @@ model Report {
   originalPlate             String?       @map("original_plate")
   originalBrand             String?       @map("original_brand")
   originalModel             String?       @map("original_model")
-  originalSpecies           String?       @map("original_species")
-  originalType              String?       @map("original_type")
+  originalSpecies           VehicleSpecies? @map("original_species")
+  originalType              VehicleType?    @map("original_type")
   originalColor             String?       @map("original_color")
   originalChassi            String?       @map("original_chassi")
   originalMotor             String?       @map("original_motor")
