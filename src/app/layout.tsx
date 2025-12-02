@@ -8,8 +8,11 @@ import "react-toastify/dist/ReactToastify.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-	title: "Fullstack Project",
-	description: "Fullstack Project with Next.js and Prisma",
+	title: {
+		default: "Sistema de Laudos Policiais",
+		template: "%s | Sistema de Laudos Policiais",
+	},
+	description: "Sistema de gerenciamento de laudos periciais do Departamento de Polícia Técnica",
 }
 
 export default function RootLayout({
@@ -18,7 +21,7 @@ export default function RootLayout({
 	children: React.ReactNode
 }>) {
 	return (
-		<html lang="en">
+		<html lang="pt-BR">
 			<body className={inter.className}>
 				<ToastContainer />
 				{children}

@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth";
 import { getReports } from "@/actions/reports/get-reports";
 import { OfficerReportsInProgressClient } from "./client";
+
+export const metadata: Metadata = {
+  title: "Laudos em Andamento",
+  description: "Laudos sendo preenchidos",
+};
 
 export default async function OfficerReportsInProgressPage() {
   const user = await getCurrentUser();

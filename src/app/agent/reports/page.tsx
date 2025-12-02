@@ -1,8 +1,14 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { getReports } from "@/actions/reports/get-reports"
 import { getOfficers } from "@/actions/officers/get-officers"
 import { getCurrentUser } from "@/modules/auth"
 import { AgentReportsClient } from "./client"
+
+export const metadata: Metadata = {
+  title: "Laudos",
+  description: "Gerenciar laudos periciais",
+}
 
 export default async function AgentReportsPage() {
   const user = await getCurrentUser()

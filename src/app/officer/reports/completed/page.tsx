@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/modules/auth";
 import { getReports } from "@/actions/reports/get-reports";
 import { OfficerReportsCompletedClient } from "./client";
+
+export const metadata: Metadata = {
+  title: "Laudos Concluídos",
+  description: "Laudos finalizados",
+};
 
 export default async function OfficerReportsCompletedPage() {
   const user = await getCurrentUser();

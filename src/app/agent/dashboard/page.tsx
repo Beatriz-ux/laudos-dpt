@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getDashboardStats } from "@/actions/dashboard/get-stats";
 import { getReports } from "@/actions/reports/get-reports";
 import { getOfficers } from "@/actions/officers/get-officers";
 import { getCurrentUser } from "@/modules/auth";
 import { AgentDashboardClient } from "./client";
+
+export const metadata: Metadata = {
+  title: "Dashboard do Agente",
+  description: "Painel de controle para gerenciamento de laudos",
+};
 
 export default async function AgentDashboardPage() {
   const user = await getCurrentUser();

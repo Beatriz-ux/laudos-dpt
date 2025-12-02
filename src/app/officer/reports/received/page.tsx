@@ -1,7 +1,13 @@
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { getReports } from "@/actions/reports/get-reports"
 import { getCurrentUser } from "@/modules/auth"
 import { OfficerReportsReceivedClient } from "./client"
+
+export const metadata: Metadata = {
+  title: "Laudos Recebidos",
+  description: "Laudos atribuídos aguardando início",
+}
 
 export default async function OfficerReportsReceivedPage() {
   const user = await getCurrentUser()
