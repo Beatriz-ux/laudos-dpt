@@ -33,6 +33,7 @@ type Route = {
 
 export function Sidebar({ user }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -67,31 +68,56 @@ export function Sidebar({ user }: SidebarProps) {
     router.push("/auth/login");
   };
 
+  const closeMobileMenu = () => setIsMobileOpen(false);
+
   const isActive = (href: string) => {
     return pathname === href;
   };
 
   return (
-    <div
-      className={`flex flex-col h-screen bg-card border-r border-border transition-all duration-300 ${
-        isCollapsed ? "w-16" : "w-64"
-      }`}
-    >
+    <>
+      <button
+        onClick={() => setIsMobileOpen(true)}
+        className="fixed left-4 top-4 z-40 inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-card text-foreground shadow-sm md:hidden"
+        aria-label="Abrir menu"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {isMobileOpen && (
+        <button
+          onClick={closeMobileMenu}
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm md:hidden"
+          aria-label="Fechar menu"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col border-r border-border bg-card transition-transform duration-300 md:relative md:z-auto md:translate-x-0 ${
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        } ${isCollapsed ? "md:w-16" : "md:w-64"}`}
+      >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        {!isCollapsed && (
-          <div className="flex items-center space-x-2">
+        <div className={`flex items-center space-x-2 ${isCollapsed ? "md:hidden" : ""}`}>
             <Shield className="h-8 w-8 text-primary" />
             <span className="text-lg font-bold text-foreground">
               Sistema Laudos
             </span>
-          </div>
-        )}
+        </div>
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => {
+            if (window.innerWidth < 768) {
+              closeMobileMenu();
+              return;
+            }
+
+            setIsCollapsed(!isCollapsed);
+          }}
           className="inline-flex items-center justify-center rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground h-9 w-9"
+          aria-label={isMobileOpen ? "Fechar menu" : "Alternar menu"}
         >
-          {isCollapsed ? (
+          {isCollapsed && !isMobileOpen ? (
             <Menu className="h-4 w-4" />
           ) : (
             <X className="h-4 w-4" />
@@ -101,8 +127,7 @@ export function Sidebar({ user }: SidebarProps) {
 
       {/* User Info */}
       <div className="p-4 border-b border-border">
-        {!isCollapsed ? (
-          <div className="space-y-2">
+          <div className={`space-y-2 ${isCollapsed ? "md:hidden" : ""}`}>
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
                 <User className="h-5 w-5 text-primary-foreground" />
@@ -126,8 +151,8 @@ export function Sidebar({ user }: SidebarProps) {
               {user.role === "AGENT" ? "Agente" : "Policial"}
             </span>
           </div>
-        ) : (
-          <div className="flex justify-center">
+        {isCollapsed && (
+          <div className="hidden justify-center md:flex">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <User className="h-4 w-4 text-primary-foreground" />
             </div>
@@ -147,8 +172,8 @@ export function Sidebar({ user }: SidebarProps) {
                 key={item.name}
                 className="flex items-center px-3 py-2 rounded-lg text-sm font-medium opacity-50 cursor-not-allowed text-muted-foreground"
               >
-                <Icon className={`h-5 w-5 ${!isCollapsed && "mr-3"}`} />
-                {!isCollapsed && item.name}
+                <Icon className={`h-5 w-5 mr-3 ${isCollapsed ? "md:mr-0" : ""}`} />
+                <span className={isCollapsed ? "md:hidden" : ""}>{item.name}</span>
               </div>
             );
           }
@@ -157,14 +182,15 @@ export function Sidebar({ user }: SidebarProps) {
             <Link
               key={item.name}
               href={item.href}
+              onClick={closeMobileMenu}
               className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 active
                   ? "bg-accent text-accent-foreground"
                   : "text-foreground hover:bg-accent/50 hover:text-accent-foreground"
               }`}
             >
-              <Icon className={`h-5 w-5 ${!isCollapsed && "mr-3"}`} />
-              {!isCollapsed && item.name}
+              <Icon className={`h-5 w-5 mr-3 ${isCollapsed ? "md:mr-0" : ""}`} />
+              <span className={isCollapsed ? "md:hidden" : ""}>{item.name}</span>
             </Link>
           );
         })}
@@ -174,26 +200,28 @@ export function Sidebar({ user }: SidebarProps) {
       <div className="p-4 border-t border-border space-y-2">
         <Link
           href={profileHref}
+          onClick={closeMobileMenu}
           className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             isActive(profileHref)
               ? "bg-accent text-accent-foreground"
               : "text-foreground hover:bg-accent/50 hover:text-accent-foreground"
           }`}
         >
-          <User className={`h-5 w-5 ${!isCollapsed && "mr-3"}`} />
-          {!isCollapsed && "Perfil"}
+          <User className={`h-5 w-5 mr-3 ${isCollapsed ? "md:mr-0" : ""}`} />
+          <span className={isCollapsed ? "md:hidden" : ""}>Perfil</span>
         </Link>
 
         <button
           onClick={handleLogout}
           className={`w-full flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors text-foreground hover:bg-destructive/10 hover:text-destructive ${
-            isCollapsed && "justify-center"
+            isCollapsed && "md:justify-center"
           }`}
         >
-          <LogOut className={`h-5 w-5 ${!isCollapsed && "mr-3"}`} />
-          {!isCollapsed && "Sair"}
+          <LogOut className={`h-5 w-5 mr-3 ${isCollapsed ? "md:mr-0" : ""}`} />
+          <span className={isCollapsed ? "md:hidden" : ""}>Sair</span>
         </button>
       </div>
-    </div>
+      </aside>
+    </>
   );
 }
