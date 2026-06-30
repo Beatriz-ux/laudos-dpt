@@ -62,17 +62,17 @@ export function OfficerReportsReceivedClient({
   }
 
   return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Clock className="h-8 w-8 text-blue-600" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center space-x-3">
+            <Clock className="h-7 w-7 shrink-0 text-blue-600 sm:h-8 sm:w-8" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Laudos Recebidos</h1>
-              <p className="text-muted-foreground">Laudos atribuídos prontos para iniciar</p>
+              <h1 className="whitespace-nowrap text-xl font-bold text-foreground sm:text-3xl">Laudos Recebidos</h1>
+              <p className="text-sm text-muted-foreground sm:text-base">Laudos atribuídos prontos para iniciar</p>
             </div>
           </div>
-          <span className="text-lg px-3 py-1 rounded bg-blue-100 text-blue-700 font-medium">
+          <span className="w-fit whitespace-nowrap rounded bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 sm:text-lg">
             {filteredReports.length} recebidos
           </span>
         </div>

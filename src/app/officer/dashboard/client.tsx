@@ -69,7 +69,7 @@ export function OfficerDashboardClient({
   }
 
   return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-foreground">Meus Laudos</h1>
@@ -80,8 +80,8 @@ export function OfficerDashboardClient({
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="rounded-lg border bg-card p-6">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Recebidos</h3>
                 <Inbox className="h-4 w-4 text-blue-600" />
@@ -90,7 +90,7 @@ export function OfficerDashboardClient({
               <p className="text-xs text-muted-foreground mt-1">Aguardando início</p>
             </div>
 
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Rascunhos</h3>
                 <FileEdit className="h-4 w-4 text-yellow-600" />
@@ -99,7 +99,7 @@ export function OfficerDashboardClient({
               <p className="text-xs text-muted-foreground mt-1">Em andamento</p>
             </div>
 
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Concluídos</h3>
                 <CheckCircle className="h-4 w-4 text-green-600" />
@@ -108,7 +108,7 @@ export function OfficerDashboardClient({
               <p className="text-xs text-muted-foreground mt-1">Finalizados</p>
             </div>
 
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Total</h3>
                 <AlertTriangle className="h-4 w-4 text-muted-foreground" />

@@ -34,17 +34,17 @@ export function OfficerReportsCompletedClient({
   }, [reports, searchQuery, priorityFilter])
 
   return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <CheckCircle className="h-8 w-8 text-green-600" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center space-x-3">
+            <CheckCircle className="h-7 w-7 shrink-0 text-green-600 sm:h-8 sm:w-8" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Laudos Concluídos</h1>
-              <p className="text-muted-foreground">Laudos finalizados por você</p>
+              <h1 className="whitespace-nowrap text-xl font-bold text-foreground sm:text-3xl">Laudos Concluídos</h1>
+              <p className="text-sm text-muted-foreground sm:text-base">Laudos finalizados por você</p>
             </div>
           </div>
-          <span className="text-lg px-3 py-1 rounded bg-green-100 text-green-700 font-medium">
+          <span className="w-fit whitespace-nowrap rounded bg-green-100 px-3 py-1 text-sm font-medium text-green-700 sm:text-lg">
             {filteredReports.length} concluídos
           </span>
         </div>

@@ -33,7 +33,7 @@ export function AgentDashboardClient({
   }
 
   return (
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -47,8 +47,8 @@ export function AgentDashboardClient({
 
         {/* Stats Cards */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="rounded-lg border bg-card p-6">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Total de Laudos</h3>
                 <FileText className="h-4 w-4 text-muted-foreground" />
@@ -59,7 +59,7 @@ export function AgentDashboardClient({
               </p>
             </div>
 
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Pendentes</h3>
                 <Clock className="h-4 w-4 text-yellow-600" />
@@ -68,7 +68,7 @@ export function AgentDashboardClient({
               <p className="text-xs text-muted-foreground mt-1">Aguardando atribuição</p>
             </div>
 
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Em Andamento</h3>
                 <AlertTriangle className="h-4 w-4 text-blue-600" />
@@ -77,7 +77,7 @@ export function AgentDashboardClient({
               <p className="text-xs text-muted-foreground mt-1">Sendo processados</p>
             </div>
 
-            <div className="rounded-lg border bg-card p-6">
+            <div className="rounded-lg border bg-card p-4 sm:p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-medium text-muted-foreground">Concluídos</h3>
                 <CheckCircle className="h-4 w-4 text-green-600" />
